@@ -912,12 +912,11 @@ void ZkevmSteps::step3_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                     break;
                }
                case 115: {
-                    // TODO
+                    Goldilocks3::sub_avx(tmp3[args3[i_args]], tmp3[args3[i_args + 1]], tmp3[args3[i_args + 2]]);
+                    i_args += 3;
+                    break;
                }
-               case 116: {
-                    // TODO
-               }
-               case 117:
+               case 116:
                {
                     // 0, 50
                     Goldilocks::add_avx(tmp1[(args3[i_args])], tmp1[args3[i_args + 1]], tmp1[args3[i_args + 2]]);
@@ -1824,9 +1823,15 @@ void ZkevmSteps::step3_parser_first_avx_jump(StepsParams &params, uint64_t nrows
               Goldilocks::add_avx(&params.pols[0], offsets1, tmp1[args3[i_args + 4]], &params.pols[0], offsets2);
               i_args += 9;
          },
+         [](int i, int &i_args, __m256i tmp1[NTEMP1_], Goldilocks3::Element_avx tmp3[NTEMP3_], uint64_t offsets1[4], uint64_t offsets2[4], StepsParams &params, const int numpols) {
+               // 115:
+               Goldilocks3::sub_avx(tmp3[args3[i_args]], tmp3[args3[i_args + 1]], tmp3[args3[i_args + 2]]);
+               i_args += 3;
+
+         },
          [](int i, int &i_args, __m256i tmp1[NTEMP1_], Goldilocks3::Element_avx tmp3[NTEMP3_], uint64_t offsets1[4], uint64_t offsets2[4], StepsParams &params, const int numpols)
          {
-              // 115:
+              // 116:
               // 0, 50
               Goldilocks::add_avx(tmp1[(args3[i_args])], tmp1[args3[i_args + 1]], tmp1[args3[i_args + 2]]);
               i_args += 3;
@@ -2760,12 +2765,11 @@ void ZkevmSteps::step3_parser_first_avx512(StepsParams &params, uint64_t nrows, 
                     break;
                }
                case 115: {
-                    // TODO
+                    Goldilocks3::sub_avx512(tmp3[args3[i_args]], tmp3[args3[i_args + 1]], tmp3[args3[i_args + 2]]);
+                    i_args += 3;
+                    break;
                }
-               case 116: {
-                    // TODO
-               }
-               case 117:
+               case 116:
                {
                     // 0, 50
                     Goldilocks::add_avx512(tmp1[(args3[i_args])], tmp1[args3[i_args + 1]], tmp1[args3[i_args + 2]]);
