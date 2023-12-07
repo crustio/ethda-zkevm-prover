@@ -660,7 +660,7 @@ void ZkevmSteps::step42ns_parser_first_avx(StepsParams &params, uint64_t nrows, 
                }
                case 84: 
                {
-                    for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
+                    for (uint64_t j = 0; j < AVX_SIZE_; ++j)
                     {
                          offsets1[j] = args42[i_args + 1] + (((i + j) + args42[i_args + 2]) % args42[i_args + 3]) * args42[i_args + 4];
                     }
@@ -1402,7 +1402,7 @@ void ZkevmSteps::step42ns_parser_first(StepsParams &params, uint64_t nrows, uint
                }
                case 84: 
                {
-                     for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
+                     for (uint64_t j = 0; j < AVX_SIZE_; ++j)
                     {
                          offsets1[j] = args42[i_args + 1] + (((i + j) + args42[i_args + 2]) % args42[i_args + 3]) * args42[i_args + 4];
                     }

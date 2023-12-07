@@ -246,44 +246,89 @@ public:
         return Goldilocks::toU64(_pAddress[idx * _offset]);
     }
 
+    inline Goldilocks::Element getValue(uint64_t idx)
+    {
+        return _pAddress[idx * _offset];
+    }
+
+    struct VectorHasher {
+        std::size_t operator()(const std::vector<Goldilocks::Element>& a) const {
+            size_t hash = a.size();
+            for(auto &i : a) {
+                hash ^= static_cast<std::size_t>(Goldilocks::toU64(i)) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+            }
+            return hash;
+        }
+    };
+
+    struct VectorEqual {
+        bool operator()(const std::vector<Goldilocks::Element> &a, const std::vector<Goldilocks::Element> &b) const {
+            if (a.size() != b.size()) {
+                return false;
+            }
+
+            for (uint64_t i = 0; i < a.size(); ++i) {
+                if (Goldilocks::toU64(a[i]) != Goldilocks::toU64(b[i])) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    };
+
     static void calculateMulCounter(Polinomial &m, Polinomial* fPols, Polinomial* tPols, uint64_t nPols)
     {
         uint64_t size = m.degree();
 
-        Polinomial one(1, 1);
-        Goldilocks::copy((Goldilocks::Element *)one[0],  &Goldilocks::one());
+        std::unordered_map<std::vector<Goldilocks::Element>, vector<uint64_t>, Polinomial::VectorHasher, Polinomial::VectorEqual> t;
+    
+        for(uint64_t i = 0; i < size; ++i) {
+            std::vector<Goldilocks::Element> tPol;
+            for(uint64_t l = 0; l < nPols; l++) {
+                tPol.push_back(tPols[l].getValue(i));
+            }
 
-        // TODO: initialize one;
+            auto const result = t.find(tPol);
+            if(result != t.end()) {
+                result->second.push_back(i);
+            } else {
+                std::pair<vector<Goldilocks::Element>, vector<uint64_t>> pr(tPol, {i});
+                t.insert(pr);
+            }
+        }
 
-        for(uint64_t j = 0; j < size; j++) {
-            for(uint64_t k = 0; k < size; k++) {
+        vector<uint64_t> counter(size, 0);
+
+        for(uint64_t i = 0; i < size; ++i) {
+            std::vector<Goldilocks::Element> fPol;
+            for(uint64_t l = 0; l < nPols; l++) {
+                fPol.push_back(fPols[l].getValue(i));
+            }
+
+            auto const result = t.find(fPol);
+            if (result == t.end())
+            {   
+                std::string errorMsg = "Polinomial::calculateMulCounter() Number not included [";
                 for(uint64_t l = 0; l < nPols; l++) {
-                    vector<Goldilocks::Element> tPol = tPols[l].toVector(j);
-                    vector<Goldilocks::Element> fPol = fPols[l].toVector(k);
-                    if(!CompareFeVectorEqual(fPol, tPol)) break;
-                    if(l == nPols - 1) addElement(m, j, m, j, one, 0);
+                    errorMsg += Goldilocks::toString(fPol[l]);
+                    errorMsg += l != nPols - 1 ? ", " : "]";
+                }                
+                zklog.error(errorMsg);
+                exitProcess();
+            } else {
+                for(uint64_t j = 0; j < result->second.size(); ++j) {
+                    uint64_t key = result->second[j];
+                    counter[key] += 1;
                 }
             }
         }
 
-        // Normalize mulCount
-        for(uint64_t j = 0; j < size; j++) {
-            Polinomial repetitions(1, 1);
-            Goldilocks::copy((Goldilocks::Element *)repetitions[0],  &Goldilocks::one());
-            for(uint64_t k = 0; k < size; k++) {
-                if(k == j) continue;
-                for(uint64_t l = 0; l < nPols; l++) {
-                    vector<Goldilocks::Element> tPol1 = tPols[l].toVector(j);
-                    vector<Goldilocks::Element> tPol2 = tPols[l].toVector(k);
-                    if(!CompareFeVectorEqual(tPol1, tPol2)) break;
-                    if(l == nPols - 1) addElement(repetitions, 0, repetitions, 0, one, 0);
-                }
-            }
-
-            if(!Goldilocks::isOne((Goldilocks::Element &)*repetitions[0])) {
-                divElement(m, j, m, j, repetitions, 0);
-            }
+        for(uint64_t i = 0; i < size; ++i) {
+            m[i][0] = Goldilocks::fromU64(counter[i]);
         }
+
+        t.clear();        
     }
 
     static void calculateH1H2(Polinomial &h1, Polinomial &h2, Polinomial &fPol, Polinomial &tPol)

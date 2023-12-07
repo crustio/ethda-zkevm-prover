@@ -149,17 +149,20 @@ void StarkInfo::load(json j)
     {
         PuCtx pu;
         pu.tExpId = j["puCtx"][i]["tExpId"];
-        pu.fExpId = j["puCtx"][i]["fExpId"];
+        pu.fExpId = j["puCtx"][i]["fExpIds"][0];
         pu.mId = j["puCtx"][i]["mId"];
         for(uint64_t k = 0; k < j["puCtx"][i]["tVals"].size(); k++) {
             pu.tVals.push_back(j["puCtx"][i]["tVals"][k]);
         }
 
         for(uint64_t k = 0; k < j["puCtx"][i]["fVals"].size(); k++) {
+            vector<uint64_t> tmp;
             for(uint64_t l = 0; l < j["puCtx"][i]["fVals"][k].size(); l++) {
-                pu.fVals.push_back(j["puCtx"][i]["fVals"][k][l]);
+                tmp.push_back(j["puCtx"][i]["fVals"][k][l]);
             }
+            pu.fVals.push_back(tmp);
         }
+
         pu.sId = j["puCtx"][i]["sId"];
         pu.c1Id = j["puCtx"][i]["c1Id"];
         pu.numId = j["puCtx"][i]["numId"];

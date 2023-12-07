@@ -71,25 +71,31 @@ void Starks::genProof(FRIProof &proof, Goldilocks::Element *publicInputs, Goldil
     }
 
     TimerStart(STARK_STEP_1_CALCULATE_MULTIPLICITIES);
-#pragma omp parallel for
+// #pragma omp parallel for
     for (uint64_t i = 0; i < starkInfo.puCtx.size(); i++)
     {
-        Polinomial *tPols = new Polinomial[starkInfo.puCtx[i].tVals.size()];
-        Polinomial *fPols = new Polinomial[starkInfo.puCtx[i].fVals[0].size()];
+        Polinomial *tPolsLocal = new Polinomial[starkInfo.puCtx[i].tVals.size()];
+        Polinomial *fPolsLocal = new Polinomial[starkInfo.puCtx[i].fVals[0].size()];
 
         for (uint64_t j = 0; j < starkInfo.puCtx[i].tVals.size(); j++) 
         {
-            tPols[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].tVals[j])]);
+            tPolsLocal[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].tVals[j])]);
         }
 
         for (uint64_t j = 0; j < starkInfo.puCtx[i].fVals[0].size(); j++) 
         {
-            fPols[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fVals[0][j])]);
+            fPolsLocal[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fVals[0][j])]);
         }
 
         Polinomial m = starkInfo.getPolinomial(mem, starkInfo.cm_n[numCommited++]);
         
-        Polinomial::calculateMulCounter(m, fPols, tPols, starkInfo.puCtx[i].tVals.size());
+        Polinomial::calculateMulCounter(m, fPolsLocal, tPolsLocal, starkInfo.puCtx[i].tVals.size());
+
+        delete[] tPolsLocal;
+        tPolsLocal = nullptr;
+
+        delete[] fPolsLocal;
+        fPolsLocal = nullptr;
     }
     TimerStopAndLog(STARK_STEP_1_CALCULATE_MULTIPLICITIES);
 

@@ -13,9 +13,7 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
      {
           int i_args = 0;
           //__m256i *tmp1 = new __m256i[NTEMP1_];
-          // Goldilocks3::Element_avx *tmp3 = new Goldilocks3::Element_avx[NTEMP3_];
           __m256i tmp1[NTEMP1_];
-          Goldilocks3::Element_avx tmp3[NTEMP3_];
           uint64_t offsets1[4], offsets2[4];
           uint64_t numpols = params.pConstPols->numPols();
 
@@ -107,63 +105,6 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                     }
                     Goldilocks::add_avx(tmp1[(args1[i_args])], &params.pConstPols->getElement(0, 0), Goldilocks::fromU64(args1[i_args + 4]), offsets1);
                     i_args += 5;
-                    break;
-               }
-               case 12:
-               {
-
-                    Goldilocks3::add13_avx(tmp3[args1[i_args]], tmp1[args1[i_args + 1]], tmp3[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 13:
-               {
-                    Goldilocks3::add1c3c_avx(tmp3[args1[i_args]], Goldilocks::fromU64(args1[i_args + 1]), params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 14:
-               {
-                    Goldilocks3::add13c_avx(tmp3[args1[i_args]], tmp1[args1[i_args + 1]], params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 15:
-               {
-
-                    Goldilocks3::add13_avx(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], tmp3[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 16:
-               {
-                    Goldilocks3::add13c_avx(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], params.challenges[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 17:
-               {
-                    Goldilocks3::add_avx(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], tmp3[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 18:
-               {
-
-                    Goldilocks3::add33c_avx(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 19:
-               {
-                    Goldilocks3::add_avx(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], tmp3[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 20:
-               {
-                    Goldilocks3::add33c_avx(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], params.challenges[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
                     break;
                }
                case 21:
@@ -323,30 +264,6 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                     i_args += 3;
                     break;
                }
-               case 41:
-               {
-                    Goldilocks3::sub31c_avx(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], Goldilocks::fromU64(args1[i_args + 3]), args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 42:
-               {
-                    Goldilocks3::sub_avx(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], tmp3[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 43:
-               {
-                    Goldilocks3::sub33c_avx(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 44:
-               {
-                    Goldilocks3::sub_avx(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], &params.pols[args1[i_args + 2] + i * args1[i_args + 3]], args1[i_args + 3]);
-                    i_args += 4;
-                    break;
-               }
                case 45:
                {
                     Goldilocks::mult_avx(tmp1[(args1[i_args])], tmp1[args1[i_args + 1]], tmp1[args1[i_args + 2]]);
@@ -454,163 +371,6 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                     i_args += 3;
                     break;
                }
-               case 59:
-               {
-                    Goldilocks3::mul13c_avx(tmp3[args1[i_args]], tmp1[args1[i_args + 1]], params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 60:
-               {
-                    Goldilocks3::mul13_avx(tmp3[args1[i_args]], &params.pConstPols->getElement(args1[i_args + 1], i), tmp3[args1[i_args + 2]], numpols);
-                    i_args += 3;
-                    break;
-               }
-               case 61:
-               {
-
-                    Goldilocks3::mul13_avx(tmp3[args1[i_args]], tmp1[args1[i_args + 1]], tmp3[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 62:
-               {
-                    Goldilocks3::mul13c_avx(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], params.challenges[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 63:
-               {
-                    for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args + 1] + (((i + j) + args1[i_args + 2]) % args1[i_args + 3]) * args1[i_args + 4];
-                    }
-                    Goldilocks3::mul13c_avx(tmp3[args1[i_args]], &params.pols[0], params.challenges[args1[i_args + 5]], offsets1);
-                    i_args += 6;
-                    break;
-               }
-               case 64:
-               {
-                    Goldilocks3::mul13_avx(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], tmp3[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 65:
-               {
-                    for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args + 1] + (((i + j) + args1[i_args + 2]) % args1[i_args + 3]) * args1[i_args + 4];
-                         offsets2[j] = FIELD_EXTENSION * (j + AVX_SIZE_ * args1[i_args + 5]);
-                    }
-                    Goldilocks3::mul13_avx(tmp3[args1[i_args]], &params.pols[0], tmp3[args1[i_args + 5]], offsets1);
-                    i_args += 6;
-                    break;
-               }
-               case 66:
-               {
-                    Goldilocks3::mul1c3c_avx(tmp3[args1[i_args]], Goldilocks::fromU64(args1[i_args + 1]), (Goldilocks3::Element &)*params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 67:
-               {
-                    Goldilocks3::mul13c_avx(tmp3[args1[i_args]], params.x_n[i], (Goldilocks3::Element &)*params.challenges[args1[i_args + 1]], params.x_n.offset());
-                    i_args += 2;
-                    break;
-               }
-               case 68:
-               {
-                    Goldilocks3::mul13_avx(tmp3[args1[i_args]], params.x_n[i], tmp3[args1[i_args + 1]], params.x_n.offset());
-                    i_args += 2;
-                    break;
-               }
-               case 69:
-               {
-
-                    Goldilocks::Element tmp_inv[3];
-                    Goldilocks::Element ti0[4];
-                    Goldilocks::Element ti1[4];
-                    Goldilocks::Element ti2[4];
-                    Goldilocks::store_avx(ti0, tmp3[args1[i_args]][0]);
-                    Goldilocks::store_avx(ti1, tmp3[args1[i_args]][1]);
-                    Goldilocks::store_avx(ti2, tmp3[args1[i_args]][2]);
-
-                    for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         tmp_inv[0] = ti0[j];
-                         tmp_inv[1] = ti1[j];
-                         tmp_inv[2] = ti2[j];
-                         Goldilocks3::mul((Goldilocks3::Element &)(params.q_2ns[(i + j) * 3]),
-                                          params.zi.zhInv((i + j)),
-                                          (Goldilocks3::Element &)tmp_inv);
-                    }
-                    i_args += 1;
-                    break;
-               }
-               case 70:
-               {
-
-                    Goldilocks3::mul33c_avx(tmp3[args1[i_args]], tmp3[args1[i_args + 2]], params.challenges[args1[i_args + 1]]);
-                    i_args += 3;
-                    break;
-               }
-               case 71:
-               {
-                    Goldilocks3::mul_avx(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], tmp3[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 72:
-               {
-                    Goldilocks3::mul_avx(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], &params.pols[args1[i_args + 3] + i * args1[i_args + 4]], args1[i_args + 2], args1[i_args + 4]);
-                    i_args += 5;
-                    break;
-               }
-               case 73:
-               {
-                    for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args + 1] + (((i + j) + args1[i_args + 2]) % args1[i_args + 3]) * args1[i_args + 4];
-                    }
-
-                    Goldilocks3::mul33c_avx(tmp3[args1[i_args]], &params.pols[0], params.challenges[args1[i_args + 5]], offsets1);
-                    i_args += 6;
-                    break;
-               }
-               case 74:
-               {
-                    for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args + 1] + (((i + j) + args1[i_args + 2]) % args1[i_args + 3]) * args1[i_args + 4];
-                         offsets2[j] = FIELD_EXTENSION * (j + AVX_SIZE_ * args1[i_args + 5]);
-                    }
-                    Goldilocks3::mul_avx(tmp3[args1[i_args]], &params.pols[0], tmp3[args1[i_args + 5]], offsets1);
-                    i_args += 6;
-                    break;
-               }
-               case 75:
-               {
-                    Goldilocks3::mul_avx(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], tmp3[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 76:
-               {
-                    Goldilocks3::mul33c_avx(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], params.challenges[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 77:
-               {
-                    for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args + 1] + (((i + j) + args1[i_args + 2]) % args1[i_args + 3]) * args1[i_args + 4];
-                         offsets2[j] = args1[i_args + 5] + (i + j) * args1[i_args + 6];
-                    }
-                    Goldilocks3::mul_avx(tmp3[args1[i_args]], &params.pols[0], &params.pols[0], offsets1, offsets2);
-                    i_args += 7;
-                    break;
-               }
                case 78:
                {
                     Goldilocks::copy_avx(tmp1[(args1[i_args])], tmp1[args1[i_args + 1]]);
@@ -687,24 +447,6 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                     i_args += 5;
                     break;
                }
-               case 88:
-               {
-                    Goldilocks3::add13_avx(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], tmp1[args1[i_args + 2]], tmp3[args1[i_args + 3]]);
-                    i_args += 4;
-                    break;
-               }
-               case 89:
-               {
-                    Goldilocks3::add_avx(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], &params.pols[args1[i_args + 2] + i * args1[i_args + 3]], tmp3[args1[i_args + 4]], args1[i_args + 3]);
-                    i_args += 5;
-                    break;
-               }
-               case 90:
-               {
-                    Goldilocks3::add33c_avx(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], tmp3[args1[i_args + 2]], params.challenges[args1[i_args + 3]]);
-                    i_args += 4;
-                    break;
-               }
                case 91:
                {
                     assert(0); // code not used
@@ -747,12 +489,6 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                     i_args += 4;
                     break;
                }
-               case 98:
-               {
-                    Goldilocks3::mul_avx(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], tmp3[args1[i_args + 2]], tmp3[args1[i_args + 3]]);
-                    i_args += 4;
-                    break;
-               }
                case 99:
                {
                     assert(0); // code not used
@@ -783,36 +519,6 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                     }
                     Goldilocks::add_avx(&params.pols[0], offsets1, tmp1[args1[i_args + 4]], &params.pols[args1[i_args + 5] + i * args1[i_args + 6]], args1[i_args + 6]);
                     i_args += 7;
-                    break;
-               }
-               case 103:
-               {
-                    for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args] + (((i + j) + args1[i_args + 1]) % args1[i_args + 2]) * args1[i_args + 3];
-                    }
-                    Goldilocks3::add13_avx(&params.pols[0], offsets1, tmp1[args1[i_args + 4]], tmp3[args1[i_args + 5]]);
-                    i_args += 6;
-                    break;
-               }
-               case 104:
-               {
-                    for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args] + (((i + j) + args1[i_args + 1]) % args1[i_args + 2]) * args1[i_args + 3];
-                    }
-                    Goldilocks3::add_avx(&params.pols[0], offsets1, &params.pols[args1[i_args + 4] + i * args1[i_args + 5]], tmp3[args1[i_args + 6]], args1[i_args + 5]);
-                    i_args += 7;
-                    break;
-               }
-               case 105:
-               {
-                    for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args] + (((i + j) + args1[i_args + 1]) % args1[i_args + 2]) * args1[i_args + 3];
-                    }
-                    Goldilocks3::add33c_avx(&params.pols[0], offsets1, tmp3[args1[i_args + 4]], params.challenges[args1[i_args + 5]]);
-                    i_args += 6;
                     break;
                }
                case 106:
@@ -876,16 +582,6 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                     i_args += 8;
                     break;
                }
-               case 112:
-               {
-                    for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args] + (((i + j) + args1[i_args + 1]) % args1[i_args + 2]) * args1[i_args + 3];
-                    }
-                    Goldilocks3::mul_avx(&params.pols[0], offsets1, tmp3[args1[i_args + 4]], tmp3[args1[i_args + 5]]);
-                    i_args += 6;
-                    break;
-               }
                case 113:
                {
                     for (uint64_t j = 0; j < AVX_SIZE_; ++j)
@@ -918,7 +614,6 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                std::cout << " " << i_args << " - " << NARGS_ << std::endl;
           assert(i_args == NARGS_);
           // delete (tmp1);
-          // delete (tmp3);
      }
 }
 
@@ -930,9 +625,7 @@ void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, 
      {
           int i_args = 0;
           //__m256i *tmp1 = new __m256i[NTEMP1_];
-          // Goldilocks3::Element_avx *tmp3 = new Goldilocks3::Element_avx[NTEMP3_];
           __m512i tmp1[NTEMP1_];
-          Goldilocks3::Element_avx512 tmp3[NTEMP3_];
           uint64_t offsets1[AVX512_SIZE_], offsets2[AVX512_SIZE_];
           uint64_t numpols = params.pConstPols->numPols();
 
@@ -1024,63 +717,6 @@ void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, 
                     }
                     Goldilocks::add_avx512(tmp1[(args1[i_args])], &params.pConstPols->getElement(0, 0), Goldilocks::fromU64(args1[i_args + 4]), offsets1);
                     i_args += 5;
-                    break;
-               }
-               case 12:
-               {
-
-                    Goldilocks3::add13_avx512(tmp3[args1[i_args]], tmp1[args1[i_args + 1]], tmp3[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 13:
-               {
-                    Goldilocks3::add1c3c_avx512(tmp3[args1[i_args]], Goldilocks::fromU64(args1[i_args + 1]), params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 14:
-               {
-                    Goldilocks3::add13c_avx512(tmp3[args1[i_args]], tmp1[args1[i_args + 1]], params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 15:
-               {
-
-                    Goldilocks3::add13_avx512(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], tmp3[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 16:
-               {
-                    Goldilocks3::add13c_avx512(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], params.challenges[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 17:
-               {
-                    Goldilocks3::add_avx512(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], tmp3[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 18:
-               {
-
-                    Goldilocks3::add33c_avx512(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 19:
-               {
-                    Goldilocks3::add_avx512(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], tmp3[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 20:
-               {
-                    Goldilocks3::add33c_avx512(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], params.challenges[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
                     break;
                }
                case 21:
@@ -1240,30 +876,6 @@ void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, 
                     i_args += 3;
                     break;
                }
-               case 41:
-               {
-                    Goldilocks3::sub31c_avx512(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], Goldilocks::fromU64(args1[i_args + 3]), args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 42:
-               {
-                    Goldilocks3::sub_avx512(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], tmp3[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 43:
-               {
-                    Goldilocks3::sub33c_avx512(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 44:
-               {
-                    Goldilocks3::sub_avx512(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], &params.pols[args1[i_args + 2] + i * args1[i_args + 3]], args1[i_args + 3]);
-                    i_args += 4;
-                    break;
-               }
                case 45:
                {
                     Goldilocks::mult_avx512(tmp1[(args1[i_args])], tmp1[args1[i_args + 1]], tmp1[args1[i_args + 2]]);
@@ -1371,163 +983,6 @@ void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, 
                     i_args += 3;
                     break;
                }
-               case 59:
-               {
-                    Goldilocks3::mul13c_avx512(tmp3[args1[i_args]], tmp1[args1[i_args + 1]], params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 60:
-               {
-                    Goldilocks3::mul13_avx512(tmp3[args1[i_args]], &params.pConstPols->getElement(args1[i_args + 1], i), tmp3[args1[i_args + 2]], numpols);
-                    i_args += 3;
-                    break;
-               }
-               case 61:
-               {
-
-                    Goldilocks3::mul13_avx512(tmp3[args1[i_args]], tmp1[args1[i_args + 1]], tmp3[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 62:
-               {
-                    Goldilocks3::mul13c_avx512(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], params.challenges[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 63:
-               {
-                    for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args + 1] + (((i + j) + args1[i_args + 2]) % args1[i_args + 3]) * args1[i_args + 4];
-                    }
-                    Goldilocks3::mul13c_avx512(tmp3[args1[i_args]], &params.pols[0], params.challenges[args1[i_args + 5]], offsets1);
-                    i_args += 6;
-                    break;
-               }
-               case 64:
-               {
-                    Goldilocks3::mul13_avx512(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], tmp3[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 65:
-               {
-                    for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args + 1] + (((i + j) + args1[i_args + 2]) % args1[i_args + 3]) * args1[i_args + 4];
-                         offsets2[j] = FIELD_EXTENSION * (j + AVX512_SIZE_ * args1[i_args + 5]);
-                    }
-                    Goldilocks3::mul13_avx512(tmp3[args1[i_args]], &params.pols[0], tmp3[args1[i_args + 5]], offsets1);
-                    i_args += 6;
-                    break;
-               }
-               case 66:
-               {
-                    Goldilocks3::mul1c3c_avx512(tmp3[args1[i_args]], Goldilocks::fromU64(args1[i_args + 1]), (Goldilocks3::Element &)*params.challenges[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 67:
-               {
-                    Goldilocks3::mul13c_avx512(tmp3[args1[i_args]], params.x_n[i], (Goldilocks3::Element &)*params.challenges[args1[i_args + 1]], params.x_n.offset());
-                    i_args += 2;
-                    break;
-               }
-               case 68:
-               {
-                    Goldilocks3::mul13_avx512(tmp3[args1[i_args]], params.x_n[i], tmp3[args1[i_args + 1]], params.x_n.offset());
-                    i_args += 2;
-                    break;
-               }
-               case 69:
-               {
-
-                    Goldilocks::Element tmp_inv[3];
-                    Goldilocks::Element ti0[AVX512_SIZE_];
-                    Goldilocks::Element ti1[AVX512_SIZE_];
-                    Goldilocks::Element ti2[AVX512_SIZE_];
-                    Goldilocks::store_avx512(ti0, tmp3[args1[i_args]][0]);
-                    Goldilocks::store_avx512(ti1, tmp3[args1[i_args]][1]);
-                    Goldilocks::store_avx512(ti2, tmp3[args1[i_args]][2]);
-
-                    for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
-                    {
-                         tmp_inv[0] = ti0[j];
-                         tmp_inv[1] = ti1[j];
-                         tmp_inv[2] = ti2[j];
-                         Goldilocks3::mul((Goldilocks3::Element &)(params.q_2ns[(i + j) * 3]),
-                                          params.zi.zhInv((i + j)),
-                                          (Goldilocks3::Element &)tmp_inv);
-                    }
-                    i_args += 1;
-                    break;
-               }
-               case 70:
-               {
-
-                    Goldilocks3::mul33c_avx512(tmp3[args1[i_args]], tmp3[args1[i_args + 2]], params.challenges[args1[i_args + 1]]);
-                    i_args += 3;
-                    break;
-               }
-               case 71:
-               {
-                    Goldilocks3::mul_avx512(tmp3[args1[i_args]], tmp3[args1[i_args + 1]], tmp3[args1[i_args + 2]]);
-                    i_args += 3;
-                    break;
-               }
-               case 72:
-               {
-                    Goldilocks3::mul_avx512(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], &params.pols[args1[i_args + 3] + i * args1[i_args + 4]], args1[i_args + 2], args1[i_args + 4]);
-                    i_args += 5;
-                    break;
-               }
-               case 73:
-               {
-                    for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args + 1] + (((i + j) + args1[i_args + 2]) % args1[i_args + 3]) * args1[i_args + 4];
-                    }
-
-                    Goldilocks3::mul33c_avx512(tmp3[args1[i_args]], &params.pols[0], params.challenges[args1[i_args + 5]], offsets1);
-                    i_args += 6;
-                    break;
-               }
-               case 74:
-               {
-                    for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args + 1] + (((i + j) + args1[i_args + 2]) % args1[i_args + 3]) * args1[i_args + 4];
-                         offsets2[j] = FIELD_EXTENSION * (j + AVX512_SIZE_ * args1[i_args + 5]);
-                    }
-                    Goldilocks3::mul_avx512(tmp3[args1[i_args]], &params.pols[0], tmp3[args1[i_args + 5]], offsets1);
-                    i_args += 6;
-                    break;
-               }
-               case 75:
-               {
-                    Goldilocks3::mul_avx512(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], tmp3[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 76:
-               {
-                    Goldilocks3::mul33c_avx512(tmp3[args1[i_args]], &params.pols[args1[i_args + 1] + i * args1[i_args + 2]], params.challenges[args1[i_args + 3]], args1[i_args + 2]);
-                    i_args += 4;
-                    break;
-               }
-               case 77:
-               {
-                    for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args + 1] + (((i + j) + args1[i_args + 2]) % args1[i_args + 3]) * args1[i_args + 4];
-                         offsets2[j] = args1[i_args + 5] + (i + j) * args1[i_args + 6];
-                    }
-                    Goldilocks3::mul_avx512(tmp3[args1[i_args]], &params.pols[0], &params.pols[0], offsets1, offsets2);
-                    i_args += 7;
-                    break;
-               }
                case 78:
                {
                     Goldilocks::copy_avx512(tmp1[(args1[i_args])], tmp1[args1[i_args + 1]]);
@@ -1604,24 +1059,6 @@ void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, 
                     i_args += 5;
                     break;
                }
-               case 88:
-               {
-                    Goldilocks3::add13_avx512(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], tmp1[args1[i_args + 2]], tmp3[args1[i_args + 3]]);
-                    i_args += 4;
-                    break;
-               }
-               case 89:
-               {
-                    Goldilocks3::add_avx512(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], &params.pols[args1[i_args + 2] + i * args1[i_args + 3]], tmp3[args1[i_args + 4]], args1[i_args + 3]);
-                    i_args += 5;
-                    break;
-               }
-               case 90:
-               {
-                    Goldilocks3::add33c_avx512(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], tmp3[args1[i_args + 2]], params.challenges[args1[i_args + 3]]);
-                    i_args += 4;
-                    break;
-               }
                case 91:
                {
                     assert(0); // code not used
@@ -1664,12 +1101,6 @@ void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, 
                     i_args += 4;
                     break;
                }
-               case 98:
-               {
-                    Goldilocks3::mul_avx512(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], tmp3[args1[i_args + 2]], tmp3[args1[i_args + 3]]);
-                    i_args += 4;
-                    break;
-               }
                case 99:
                {
                     assert(0); // code not used
@@ -1700,36 +1131,6 @@ void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, 
                     }
                     Goldilocks::add_avx512(&params.pols[0], offsets1, tmp1[args1[i_args + 4]], &params.pols[args1[i_args + 5] + i * args1[i_args + 6]], args1[i_args + 6]);
                     i_args += 7;
-                    break;
-               }
-               case 103:
-               {
-                    for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args] + (((i + j) + args1[i_args + 1]) % args1[i_args + 2]) * args1[i_args + 3];
-                    }
-                    Goldilocks3::add13_avx512(&params.pols[0], offsets1, tmp1[args1[i_args + 4]], tmp3[args1[i_args + 5]]);
-                    i_args += 6;
-                    break;
-               }
-               case 104:
-               {
-                    for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args] + (((i + j) + args1[i_args + 1]) % args1[i_args + 2]) * args1[i_args + 3];
-                    }
-                    Goldilocks3::add_avx512(&params.pols[0], offsets1, &params.pols[args1[i_args + 4] + i * args1[i_args + 5]], tmp3[args1[i_args + 6]], args1[i_args + 5]);
-                    i_args += 7;
-                    break;
-               }
-               case 105:
-               {
-                    for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args] + (((i + j) + args1[i_args + 1]) % args1[i_args + 2]) * args1[i_args + 3];
-                    }
-                    Goldilocks3::add33c_avx512(&params.pols[0], offsets1, tmp3[args1[i_args + 4]], params.challenges[args1[i_args + 5]]);
-                    i_args += 6;
                     break;
                }
                case 106:
@@ -1793,16 +1194,6 @@ void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, 
                     i_args += 8;
                     break;
                }
-               case 112:
-               {
-                    for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
-                    {
-                         offsets1[j] = args1[i_args] + (((i + j) + args1[i_args + 1]) % args1[i_args + 2]) * args1[i_args + 3];
-                    }
-                    Goldilocks3::mul_avx512(&params.pols[0], offsets1, tmp3[args1[i_args + 4]], tmp3[args1[i_args + 5]]);
-                    i_args += 6;
-                    break;
-               }
                case 113:
                {
                     for (uint64_t j = 0; j < AVX512_SIZE_; ++j)
@@ -1835,7 +1226,6 @@ void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, 
                std::cout << " " << i_args << " - " << NARGS_ << std::endl;
           assert(i_args == NARGS_);
           // delete (tmp1);
-          // delete (tmp3);
      }
 }
 #endif
