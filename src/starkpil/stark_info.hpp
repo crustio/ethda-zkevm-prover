@@ -117,7 +117,9 @@ class PuCtx
 public:
     uint64_t tExpId;
     uint64_t fExpId;
-    vector<vector<uint64_t>> fVals;
+    uint64_t fSelExpId;
+    uint64_t tSelExpId;
+    vector<uint64_t> fVals;
     vector<uint64_t> tVals;
     uint64_t mId;
     uint64_t sId;
@@ -125,6 +127,8 @@ public:
     uint64_t numId;
     uint64_t denId;
     uint64_t c2Id;
+    bool hasSelT;
+    bool hasSelF;
 };
 
 class CiCtx

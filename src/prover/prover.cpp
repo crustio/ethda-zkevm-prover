@@ -114,11 +114,19 @@ Prover::Prover(Goldilocks &fr,
 
             if (config.zkevmCmPols.size() > 0)
             {
-                pAddress = mapFile(config.zkevmCmPols, polsSize, true);
-                zklog.info("Prover::genBatchProof() successfully mapped " + to_string(polsSize) + " bytes to file " + config.zkevmCmPols);
+                // pAddress = mapFile(config.zkevmCmPols, polsSize, true);
+                // zklog.info("Prover::genBatchProof() successfully mapped " + to_string(polsSize) + " bytes to file " + config.zkevmCmPols);
             }
             else
             {
+                cmAddress = calloc(_starkInfo.nCommitments * _starkInfo.mapDeg.section[eSection::cm1_n] * sizeof(Goldilocks::Element), 1);
+                if (cmAddress == NULL)
+                {
+                    zklog.error("Prover::genBatchProof() failed calling malloc() of size " + to_string(_starkInfo.nCommitments * _starkInfo.mapDeg.section[eSection::cm1_n] * sizeof(Goldilocks::Element)));
+                    exitProcess();
+                }
+                zklog.info("Prover::genBatchProof() successfully allocated " + to_string(_starkInfo.nCommitments * _starkInfo.mapDeg.section[eSection::cm1_n] * sizeof(Goldilocks::Element)) + " bytes");
+
                 pAddress = calloc(polsSize, 1);
                 if (pAddress == NULL)
                 {
@@ -179,6 +187,7 @@ Prover::~Prover()
         }
         else
         {
+            free(cmAddress);
             free(pAddress);
         }
         
@@ -431,13 +440,13 @@ void Prover::genBatchProof(ProverRequest *pProverRequest)
     /************/
     TimerStart(EXECUTOR_EXECUTE_INITIALIZATION);
 
-    PROVER_FORK_NAMESPACE::CommitPols cmPols(pAddress, PROVER_FORK_NAMESPACE::CommitPols::pilDegree());
+    PROVER_FORK_NAMESPACE::CommitPols cmPols(cmAddress, PROVER_FORK_NAMESPACE::CommitPols::pilDegree());
     uint64_t num_threads = omp_get_max_threads();
     uint64_t bytes_per_thread = cmPols.size() / num_threads;
 #pragma omp parallel for num_threads(num_threads)
     for (uint64_t i = 0; i < cmPols.size(); i += bytes_per_thread) // Each iteration processes 64 bytes at a time
     {
-        memset((uint8_t *)pAddress + i, 0, bytes_per_thread);
+        memset((uint8_t *)cmAddress + i, 0, bytes_per_thread);
     }
 
     TimerStopAndLog(EXECUTOR_EXECUTE_INITIALIZATION);
@@ -568,6 +577,16 @@ void Prover::genBatchProof(ProverRequest *pProverRequest)
         /*************************************/
         /*  Generate stark proof            */
         /*************************************/
+
+        TimerStart(SAVE_CMPOLS_PADDRESS);
+
+        #pragma omp parallel for
+        for (uint64_t i = 0; i < cmPols.degree(); i += 1)
+        {
+            memcpy((uint8_t*)pAddress + i*starkZkevm->starkInfo.mapSectionsN.section[eSection::cm1_n]*sizeof(Goldilocks::Element), (uint8_t*)cmAddress + i*cmPols.numPols()*sizeof(Goldilocks::Element), cmPols.numPols()*sizeof(Goldilocks::Element));
+        }
+
+        TimerStopAndLog(SAVE_CMPOLS_PADDRESS);
 
         TimerStart(STARK_PROOF_BATCH_PROOF);
 

@@ -2,13 +2,13 @@
 #include "zhInv.hpp"
 #include "starks.hpp"
 #include "constant_pols_starks.hpp"
-#include "zkevmSteps.hpp"
+#include "allSteps.hpp"
 #include "zkevm.chelpers.step3.parser.hpp"
 #include <immintrin.h>
 
 #define AVX_SIZE_ 4
 
-void ZkevmSteps::step3_parser_first_avx(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
+void AllSteps::step3_parser_first_avx(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
 {
 #pragma omp parallel for
      for (uint64_t i = 0; i < nrows; i += nrowsBatch)
@@ -934,11 +934,11 @@ void ZkevmSteps::step3_parser_first_avx(StepsParams &params, uint64_t nrows, uin
           // delete (tmp3);
      }
 }
-void ZkevmSteps::step3_parser_first(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
+void AllSteps::step3_parser_first(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
 {
 }
 
-void ZkevmSteps::step3_parser_first_avx_jump(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
+void AllSteps::step3_parser_first_avx_jump(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
 {
 
      void (*jumpTable[])(int i, int &i_args, __m256i tmp1[NTEMP1_], Goldilocks3::Element_avx tmp3[NTEMP3_], uint64_t offsets1[4], uint64_t offsets2[4], StepsParams &params, const int numpols) = {
@@ -1852,7 +1852,7 @@ void ZkevmSteps::step3_parser_first_avx_jump(StepsParams &params, uint64_t nrows
 }
 
 #ifdef __AVX512__
-void ZkevmSteps::step3_parser_first_avx512(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
+void AllSteps::step3_parser_first_avx512(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
 {
 #pragma omp parallel for
      for (uint64_t i = 0; i < nrows; i += nrowsBatch)

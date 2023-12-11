@@ -202,16 +202,16 @@ void StarkRecursiveF::genProof(FRIProofC12 &proof, Goldilocks::Element publicInp
     for (uint64_t i = 0; i < starkInfo.puCtx.size(); i++)
     {
         Polinomial *tPols = new Polinomial[starkInfo.puCtx[i].tVals.size()];
-        Polinomial *fPols = new Polinomial[starkInfo.puCtx[i].fVals[0].size()];
+        Polinomial *fPols = new Polinomial[starkInfo.puCtx[i].fVals.size()];
 
         for (uint64_t j = 0; j < starkInfo.puCtx[i].tVals.size(); j++) 
         {
             tPols[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].tVals[j])]);
         }
 
-        for (uint64_t j = 0; j < starkInfo.puCtx[i].fVals[0].size(); j++) 
+        for (uint64_t j = 0; j < starkInfo.puCtx[i].fVals.size(); j++) 
         {
-            fPols[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fVals[0][j])]);
+            fPols[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fVals[j])]);
         }
 
         Polinomial m = starkInfo.getPolinomial(mem, starkInfo.cm_n[numCommited++]);

@@ -2,11 +2,11 @@
 #include "zhInv.hpp"
 #include "starks.hpp"
 #include "constant_pols_starks.hpp"
-#include "zkevmSteps.hpp"
+#include "allSteps.hpp"
 #include "zkevm.chelpers.step1.parser.hpp"
 #include <immintrin.h>
 
-void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
+void AllSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
 {
 #pragma omp parallel for
      for (uint64_t i = 0; i < nrows; i += nrowsBatch)
@@ -618,7 +618,7 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
 }
 
 #ifdef __AVX512__
-void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
+void AllSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
 {
 #pragma omp parallel for
      for (uint64_t i = 0; i < nrows; i += nrowsBatch)

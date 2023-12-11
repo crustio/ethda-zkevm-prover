@@ -71,25 +71,36 @@ void Starks::genProof(FRIProof &proof, Goldilocks::Element *publicInputs, Goldil
     }
 
     TimerStart(STARK_STEP_1_CALCULATE_MULTIPLICITIES);
-// #pragma omp parallel for
+    #pragma omp parallel for
     for (uint64_t i = 0; i < starkInfo.puCtx.size(); i++)
     {
         Polinomial *tPolsLocal = new Polinomial[starkInfo.puCtx[i].tVals.size()];
-        Polinomial *fPolsLocal = new Polinomial[starkInfo.puCtx[i].fVals[0].size()];
+        Polinomial *fPolsLocal = new Polinomial[starkInfo.puCtx[i].fVals.size()];
 
         for (uint64_t j = 0; j < starkInfo.puCtx[i].tVals.size(); j++) 
         {
             tPolsLocal[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].tVals[j])]);
         }
 
-        for (uint64_t j = 0; j < starkInfo.puCtx[i].fVals[0].size(); j++) 
+        for (uint64_t j = 0; j < starkInfo.puCtx[i].fVals.size(); j++) 
         {
-            fPolsLocal[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fVals[0][j])]);
+            fPolsLocal[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fVals[j])]);
         }
 
         Polinomial m = starkInfo.getPolinomial(mem, starkInfo.cm_n[numCommited++]);
         
-        Polinomial::calculateMulCounter(m, fPolsLocal, tPolsLocal, starkInfo.puCtx[i].tVals.size());
+        Polinomial tSel;
+        Polinomial fSel;
+
+        if(starkInfo.puCtx[i].hasSelT) {
+            tSel = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].tSelExpId)]);
+        }
+        if(starkInfo.puCtx[i].hasSelF) {
+            fSel = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fSelExpId)]);
+        }
+        TimerStart(STARK_STEP_1_CALCULATE_M);
+        Polinomial::calculateMulCounter(m, fPolsLocal, tPolsLocal, fSel, tSel, starkInfo.puCtx[i].hasSelF, starkInfo.puCtx[i].hasSelT, starkInfo.puCtx[i].tVals.size());
+        TimerStopAndLog(STARK_STEP_1_CALCULATE_M);
 
         delete[] tPolsLocal;
         tPolsLocal = nullptr;
@@ -122,25 +133,25 @@ void Starks::genProof(FRIProof &proof, Goldilocks::Element *publicInputs, Goldil
     transcript.getField(challenges[2]); // gamma
     if (nrowsStepBatch == 4)
     {
-        TimerStart(STARK_STEP_3_CALCULATE_EXPS_AVX);
+        TimerStart(STARK_STEP_3_PREV_CALCULATE_EXPS_AVX);
         steps->step3prev_parser_first_avx(params, N, nrowsStepBatch);
-        TimerStopAndLog(STARK_STEP_3_CALCULATE_EXPS_AVX);
+        TimerStopAndLog(STARK_STEP_3_PREV_CALCULATE_EXPS_AVX);
     }
     else if (nrowsStepBatch == 8)
     {
-        TimerStart(STARK_STEP_3_CALCULATE_EXPS_AVX512);
+        TimerStart(STARK_STEP_3_PREV_CALCULATE_EXPS_AVX512);
         steps->step3prev_parser_first_avx512(params, N, nrowsStepBatch);
-        TimerStopAndLog(STARK_STEP_3_CALCULATE_EXPS_AVX512);
+        TimerStopAndLog(STARK_STEP_3_PREV_CALCULATE_EXPS_AVX512);
     }
     else
     {
-        TimerStart(STARK_STEP_3_CALCULATE_EXPS);
+        TimerStart(STARK_STEP_3_PREV_CALCULATE_EXPS);
 #pragma omp parallel for
         for (uint64_t i = 0; i < N; i++)
         {
             steps->step3prev_first(params, i);
         }
-        TimerStopAndLog(STARK_STEP_3_CALCULATE_EXPS);
+        TimerStopAndLog(STARK_STEP_3_PREV_CALCULATE_EXPS);
     }
     TimerStart(STARK_STEP_3_CALCULATE_Z_TRANSPOSE);
     Polinomial *newpols_ = transposeZColumns(pAddress, numCommited, pBuffer);

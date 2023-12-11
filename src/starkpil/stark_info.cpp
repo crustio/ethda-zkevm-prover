@@ -149,18 +149,23 @@ void StarkInfo::load(json j)
     {
         PuCtx pu;
         pu.tExpId = j["puCtx"][i]["tExpId"];
-        pu.fExpId = j["puCtx"][i]["fExpIds"][0];
+        pu.fExpId = j["puCtx"][i]["fExpId"];
         pu.mId = j["puCtx"][i]["mId"];
+        pu.hasSelT = !j["puCtx"][i]["tSelExpId"].is_null();
+        pu.hasSelF = !j["puCtx"][i]["fSelExpId"].is_null();
+        if(!j["puCtx"][i]["tSelExpId"].is_null()) {
+            pu.tSelExpId = j["puCtx"][i]["tSelExpId"];
+        } 
         for(uint64_t k = 0; k < j["puCtx"][i]["tVals"].size(); k++) {
             pu.tVals.push_back(j["puCtx"][i]["tVals"][k]);
         }
 
         for(uint64_t k = 0; k < j["puCtx"][i]["fVals"].size(); k++) {
-            vector<uint64_t> tmp;
-            for(uint64_t l = 0; l < j["puCtx"][i]["fVals"][k].size(); l++) {
-                tmp.push_back(j["puCtx"][i]["fVals"][k][l]);
-            }
-            pu.fVals.push_back(tmp);
+            pu.fVals.push_back(j["puCtx"][i]["fVals"][k]);
+        }
+
+        if(!j["puCtx"][i]["fSelExpId"].is_null()) {
+            pu.fSelExpId = j["puCtx"][i]["fSelExpId"];
         }
 
         pu.sId = j["puCtx"][i]["sId"];

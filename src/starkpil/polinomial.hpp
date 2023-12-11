@@ -250,40 +250,15 @@ public:
     {
         return _pAddress[idx * _offset];
     }
-
-    struct VectorHasher {
-        std::size_t operator()(const std::vector<Goldilocks::Element>& a) const {
-            size_t hash = a.size();
-            for(auto &i : a) {
-                hash ^= static_cast<std::size_t>(Goldilocks::toU64(i)) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-            }
-            return hash;
-        }
-    };
-
-    struct VectorEqual {
-        bool operator()(const std::vector<Goldilocks::Element> &a, const std::vector<Goldilocks::Element> &b) const {
-            if (a.size() != b.size()) {
-                return false;
-            }
-
-            for (uint64_t i = 0; i < a.size(); ++i) {
-                if (Goldilocks::toU64(a[i]) != Goldilocks::toU64(b[i])) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-    };
-
-    static void calculateMulCounter(Polinomial &m, Polinomial* fPols, Polinomial* tPols, uint64_t nPols)
+    
+    static void calculateMulCounter(Polinomial &m, Polinomial* fPols, Polinomial* tPols, Polinomial &fSel, Polinomial &tSel, bool hasSelF, bool hasSelT, uint64_t nPols)
     {
         uint64_t size = m.degree();
 
-        std::unordered_map<std::vector<Goldilocks::Element>, vector<uint64_t>, Polinomial::VectorHasher, Polinomial::VectorEqual> t;
+        std::map<std::vector<Goldilocks::Element>, vector<uint64_t>, CompareFe> t;
     
         for(uint64_t i = 0; i < size; ++i) {
+            if(hasSelT && tSel.firstValueU64(i) == 0) continue;
             std::vector<Goldilocks::Element> tPol;
             for(uint64_t l = 0; l < nPols; l++) {
                 tPol.push_back(tPols[l].getValue(i));
@@ -301,6 +276,7 @@ public:
         vector<uint64_t> counter(size, 0);
 
         for(uint64_t i = 0; i < size; ++i) {
+            if(hasSelT && fSel.firstValueU64(i) == 0) continue;
             std::vector<Goldilocks::Element> fPol;
             for(uint64_t l = 0; l < nPols; l++) {
                 fPol.push_back(fPols[l].getValue(i));
