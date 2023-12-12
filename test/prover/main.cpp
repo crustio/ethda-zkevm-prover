@@ -27,7 +27,7 @@ int main()
 
     Starks starks(config, {constPols, config.mapConstPolsFile, constTree, starkInfoFile}, pAddress);
 
-    //starks.nrowsStepBatch = 4;
+    starks.nrowsStepBatch = 4;
 
     uint64_t N = (1 << starkInfo.starkStruct.nBits);
     #pragma omp parallel for

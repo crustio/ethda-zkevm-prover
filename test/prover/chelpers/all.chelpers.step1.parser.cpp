@@ -8,7 +8,7 @@
 
 void AllSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
 {
-//#pragma omp parallel for
+#pragma omp parallel for
      for (uint64_t i = 0; i < nrows; i += nrowsBatch)
      {
           int i_args = 0;
@@ -595,6 +595,12 @@ void AllSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uint6
                     }
                     Goldilocks::add_avx(&params.pols[0], offsets1, tmp1[args1[i_args + 4]], &params.pols[0], offsets2);
                     i_args += 9;
+                    break;
+               }
+               case 117:
+               {
+                    Goldilocks::copy_avx(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], &params.pols[args1[i_args + 2] + i * args1[i_args + 3]], args1[i_args + 3]);
+                    i_args += 4;
                     break;
                }
                default:

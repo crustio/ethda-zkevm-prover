@@ -1440,12 +1440,7 @@ void AllSteps::step42ns_parser_first(StepsParams &params, uint64_t nrows, uint64
                }
                case 89: 
                {
-                     for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         offsets1[j] = args42[i_args + 1] + (((i + j) + args42[i_args + 2]) % args42[i_args + 3]) * args42[i_args + 4];
-                    }
-                    Goldilocks3::sub31c_batch(&(tmp3[AVX_SIZE_ * args42[i_args]][0]), &params.pols[0], Goldilocks::fromU64(args42[i_args + 5]), offsets1);
-                    i_args += 6;
+                    assert(0);
                     break;
                }
                default:

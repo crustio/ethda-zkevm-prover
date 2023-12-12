@@ -9,7 +9,7 @@
 void AllSteps::step52ns_parser_first_avx(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
 {
 
-//#pragma omp parallel for
+#pragma omp parallel for
      for (uint64_t i = 0; i < nrows; i += nrowsBatch)
      {
           __m256i tmp0_0, tmp0_1, tmp0_2;

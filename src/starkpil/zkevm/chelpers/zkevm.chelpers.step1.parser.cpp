@@ -449,8 +449,7 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                }
                case 91:
                {
-                    // TODO
-                    // Goldilocks::copy_avx(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], &params.pConstPols->getElement(args1[i_args + 2], i));
+                    Goldilocks::copy_avx(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], &params.pConstPols->getElement(args1[i_args + 2], i), numpols);
                     i_args += 3;
                     break;
                }
@@ -596,6 +595,12 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                     }
                     Goldilocks::add_avx(&params.pols[0], offsets1, tmp1[args1[i_args + 4]], &params.pols[0], offsets2);
                     i_args += 9;
+                    break;
+               }
+               case 117:
+               {
+                    Goldilocks::copy_avx(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], &params.pols[args1[i_args + 2] + i * args1[i_args + 3]], args1[i_args + 3]);
+                    i_args += 4;
                     break;
                }
                default:
@@ -1056,8 +1061,7 @@ void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, 
                }
                case 91:
                {
-                    // TODO
-                    // Goldilocks::copy_avx512(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], &params.pConstPols->getElement(args1[i_args + 2], i));
+                    //Goldilocks::copy_avx512(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], &params.pConstPols->getElement(args1[i_args + 2], i));
                     i_args += 3;
                     break;
                }
@@ -1088,13 +1092,6 @@ void ZkevmSteps::step1_parser_first_avx512(StepsParams &params, uint64_t nrows, 
                case 96:
                {
                     Goldilocks::mul_avx512(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], tmp1[args1[i_args + 2]], &params.pConstPols->getElement(args1[i_args + 3], i), numpols);
-                    i_args += 4;
-                    break;
-               }
-               case 97:
-               {
-                    // TODO
-                    // Goldilocks::sub_avx512(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], tmp3[args1[i_args + 2]], tmp3[args1[i_args + 3]]);
                     i_args += 4;
                     break;
                }

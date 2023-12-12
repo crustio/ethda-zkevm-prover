@@ -1440,12 +1440,7 @@ void ZkevmSteps::step42ns_parser_first(StepsParams &params, uint64_t nrows, uint
                }
                case 89: 
                {
-                     for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-                    {
-                         offsets1[j] = args42[i_args + 1] + (((i + j) + args42[i_args + 2]) % args42[i_args + 3]) * args42[i_args + 4];
-                    }
-                    Goldilocks3::sub31c_batch(&(tmp3[AVX_SIZE_ * args42[i_args]][0]), &params.pols[0], Goldilocks::fromU64(args42[i_args + 5]), offsets1);
-                    i_args += 6;
+                    assert(0);
                     break;
                }
                default:
@@ -2178,12 +2173,12 @@ void ZkevmSteps::step42ns_parser_first_avx_jump(StepsParams &params, uint64_t nr
          [](int i, int &i_args, __m256i tmp1[NTEMP1_], Goldilocks3::Element_avx tmp3[NTEMP3_], uint64_t offsets1[4], uint64_t offsets2[4], StepsParams &params, const int numpols)
 	     {
 		// 89
-              for (uint64_t j = 0; j < AVX_SIZE_; ++j)
-              {
-                   offsets1[j] = args42[i_args + 1] + (((i + j) + args42[i_args + 2]) % args42[i_args + 3]) * args42[i_args + 4];
-              }
-               Goldilocks::sub_avx(tmp1[(args42[i_args])], &params.pols[0], Goldilocks::fromU64(args42[i_args + 5]), offsets1);
-               i_args += 5;
+          for (uint64_t j = 0; j < AVX_SIZE_; ++j)
+          {
+               offsets1[j] = args42[i_args + 1] + (((i + j) + args42[i_args + 2]) % args42[i_args + 3]) * args42[i_args + 4];
+          }
+          Goldilocks3::sub31c_avx(tmp3[(args42[i_args])], &params.pols[0], Goldilocks::fromU64(args42[i_args + 5]), offsets1);
+          i_args += 6;
 	  }
 
      };

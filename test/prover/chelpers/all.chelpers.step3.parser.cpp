@@ -710,7 +710,7 @@ void AllSteps::step3_parser_first_avx(StepsParams &params, uint64_t nrows, uint6
                }
                case 91:
                {
-                    //Goldilocks::copy_avx(&params.pols[args3[i_args] + i * args3[i_args + 1]], args3[i_args + 1], &params.pConstPols->getElement(args3[i_args + 2], i));
+                    Goldilocks::copy_avx(&params.pols[args3[i_args] + i * args3[i_args + 1]], args3[i_args + 1], &params.pConstPols->getElement(args3[i_args + 2], i), numpols);
                     i_args += 3;
                     break;
                }
@@ -746,9 +746,9 @@ void AllSteps::step3_parser_first_avx(StepsParams &params, uint64_t nrows, uint6
                }
                case 97:
                {
-                    // Goldilocks::sub_avx(&params.pols[args3[i_args] + i * args3[i_args + 1]], args3[i_args + 1], tmp3[args3[i_args + 2]], tmp3[args3[i_args + 3]]);
-                    // i_args += 4;
-                    // break;
+                    Goldilocks3::sub33c_avx(&params.pols[args3[i_args] + i * args3[i_args + 1]], args3[i_args + 1], tmp3[args3[i_args + 2]], tmp3[args3[i_args + 3]]);
+                    i_args += 4;
+                    break;
                }
                case 98:
                {
@@ -758,8 +758,8 @@ void AllSteps::step3_parser_first_avx(StepsParams &params, uint64_t nrows, uint6
                }
                case 99:
                {
-                    assert(0); // code not used
-                    i_args += 4;
+                    Goldilocks::mul_avx(&params.pols[args3[i_args] + i * args3[i_args + 1]], args3[i_args + 1], &params.pols[args3[i_args + 2] + i * args3[i_args + 3]], args3[i_args + 3], &params.pConstPols->getElement(args3[i_args + 4], i), numpols);
+                    i_args += 5;
                     break;
                }
                case 100:
@@ -918,6 +918,18 @@ void AllSteps::step3_parser_first_avx(StepsParams &params, uint64_t nrows, uint6
                     i_args += 3;
                     Goldilocks::mul_avx(tmp1[(args3[i_args])], &params.pols[args3[i_args + 1] + i * args3[i_args + 2]], &params.pols[args3[i_args + 3] + i * args3[i_args + 4]], args3[i_args + 2], args3[i_args + 4]);
                     i_args += 5;
+                    break;
+               }
+               case 116:
+               {
+                    Goldilocks3::add_avx(&params.pols[args3[i_args] + i * args3[i_args + 1]], args3[i_args + 1], tmp3[args3[i_args + 2]], tmp3[args3[i_args + 3]]);
+               i_args += 4;
+               break;
+               }
+               case 117:
+               {
+                    Goldilocks::copy_avx(&params.pols[args3[i_args] + i * args3[i_args + 1]], args3[i_args + 1], &params.pols[args3[i_args + 2] + i * args3[i_args + 3]], args3[i_args + 3]);
+                    i_args += 4;
                     break;
                }
                default:
