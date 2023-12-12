@@ -20,19 +20,19 @@ void ZkevmSteps::step52ns_parser_first_avx(StepsParams &params, uint64_t nrows, 
           tmp2_1 = _mm256_setzero_si256();
           tmp2_2 = _mm256_setzero_si256();
 
-          // prepare constant arguments (challenge5, challenge6 and evals):
+          // prepare constant arguments (challenge4, challenge5 and evals):
+          Goldilocks::Element *challenge4 = params.challenges[4];
           Goldilocks::Element *challenge5 = params.challenges[5];
-          Goldilocks::Element *challenge6 = params.challenges[6];
+          Goldilocks::Element challenge4_ops[3];
           Goldilocks::Element challenge5_ops[3];
-          Goldilocks::Element challenge6_ops[3];
+
+          challenge4_ops[0] = challenge4[0] + challenge4[1];
+          challenge4_ops[1] = challenge4[0] + challenge4[2];
+          challenge4_ops[2] = challenge4[1] + challenge4[2];
 
           challenge5_ops[0] = challenge5[0] + challenge5[1];
           challenge5_ops[1] = challenge5[0] + challenge5[2];
           challenge5_ops[2] = challenge5[1] + challenge5[2];
-
-          challenge6_ops[0] = challenge6[0] + challenge6[1];
-          challenge6_ops[1] = challenge6[0] + challenge6[2];
-          challenge6_ops[2] = challenge6[1] + challenge6[2];
 
           Goldilocks::Element aux0_ops[4], aux1_ops[4], aux2_ops[4];
           Goldilocks::Element aux0[4], aux1[4], aux2[4];
@@ -43,12 +43,12 @@ void ZkevmSteps::step52ns_parser_first_avx(StepsParams &params, uint64_t nrows, 
 
           for (int k = 0; k < AVX_SIZE_; ++k)
           {
-               aux0_ops[k] = challenge5_ops[0];
-               aux1_ops[k] = challenge5_ops[1];
-               aux2_ops[k] = challenge5_ops[2];
-               aux0[k] = challenge5[0];
-               aux1[k] = challenge5[1];
-               aux2[k] = challenge5[2];
+               aux0_ops[k] = challenge4_ops[0];
+               aux1_ops[k] = challenge4_ops[1];
+               aux2_ops[k] = challenge4_ops[2];
+               aux0[k] = challenge4[0];
+               aux1[k] = challenge4[1];
+               aux2[k] = challenge4[2];
           }
           Goldilocks::load_avx(chall5o0_, aux0_ops);
           Goldilocks::load_avx(chall5o1_, aux1_ops);
@@ -59,12 +59,12 @@ void ZkevmSteps::step52ns_parser_first_avx(StepsParams &params, uint64_t nrows, 
 
           for (int k = 0; k < AVX_SIZE_; ++k)
           {
-               aux0_ops[k] = challenge6_ops[0];
-               aux1_ops[k] = challenge6_ops[1];
-               aux2_ops[k] = challenge6_ops[2];
-               aux0[k] = challenge6[0];
-               aux1[k] = challenge6[1];
-               aux2[k] = challenge6[2];
+               aux0_ops[k] = challenge5_ops[0];
+               aux1_ops[k] = challenge5_ops[1];
+               aux2_ops[k] = challenge5_ops[2];
+               aux0[k] = challenge5[0];
+               aux1[k] = challenge5[1];
+               aux2[k] = challenge5[2];
           }
           Goldilocks::load_avx(chall6o0_, aux0_ops);
           Goldilocks::load_avx(chall6o1_, aux1_ops);
@@ -82,7 +82,7 @@ void ZkevmSteps::step52ns_parser_first_avx(StepsParams &params, uint64_t nrows, 
                {
                case 0:
                {
-                    Goldilocks3::mul13c_avx(tmp0_0, tmp0_1, tmp0_2, &params.pols[args52[i_args] + i * args52[i_args + 1]], (Goldilocks3::Element &)*params.challenges[5], args52[i_args + 1]);
+                    Goldilocks3::mul13c_avx(tmp0_0, tmp0_1, tmp0_2, &params.pols[args52[i_args] + i * args52[i_args + 1]], (Goldilocks3::Element &)*params.challenges[4], args52[i_args + 1]);
                     i_args += 2;
                     break;
                }
@@ -226,18 +226,18 @@ void ZkevmSteps::step52ns_parser_first(StepsParams &params, uint64_t nrows, uint
      {
           Goldilocks::Element tmp[AVX_SIZE_ * 3], tmp1[AVX_SIZE_ * 3], tmp2[AVX_SIZE_ * 3];
 
+          Goldilocks::Element *challenge4 = params.challenges[4];
           Goldilocks::Element *challenge5 = params.challenges[5];
-          Goldilocks::Element *challenge6 = params.challenges[6];
+          Goldilocks::Element challenge4_ops[3];
           Goldilocks::Element challenge5_ops[3];
-          Goldilocks::Element challenge6_ops[3];
+
+          challenge4_ops[0] = challenge4[0] + challenge4[1];
+          challenge4_ops[1] = challenge4[0] + challenge4[2];
+          challenge4_ops[2] = challenge4[1] + challenge4[2];
 
           challenge5_ops[0] = challenge5[0] + challenge5[1];
           challenge5_ops[1] = challenge5[0] + challenge5[2];
           challenge5_ops[2] = challenge5[1] + challenge5[2];
-
-          challenge6_ops[0] = challenge6[0] + challenge6[1];
-          challenge6_ops[1] = challenge6[0] + challenge6[2];
-          challenge6_ops[2] = challenge6[1] + challenge6[2];
 
           Goldilocks::Element *evals_ = params.evals[0];
 
@@ -249,28 +249,28 @@ void ZkevmSteps::step52ns_parser_first(StepsParams &params, uint64_t nrows, uint
                {
                case 0:
                {
-                    Goldilocks3::mul13c_batch(tmp, &params.pols[args52[i_args] + i * args52[i_args + 1]], (Goldilocks3::Element &)*params.challenges[5], args52[i_args + 1]);
+                    Goldilocks3::mul13c_batch(tmp, &params.pols[args52[i_args] + i * args52[i_args + 1]], (Goldilocks3::Element &)*params.challenges[4], args52[i_args + 1]);
                     i_args += 2;
                     break;
                }
                case 1:
                {
-                    Goldilocks3::mul_batch(tmp, tmp, challenge5, challenge5_ops);
+                    Goldilocks3::mul_batch(tmp, tmp, challenge4, challenge4_ops);
                     break;
                }
                case 2:
                {
-                    Goldilocks3::mul_batch(tmp, tmp, challenge6, challenge6_ops);
+                    Goldilocks3::mul_batch(tmp, tmp, challenge5, challenge5_ops);
                     break;
                }
                case 3:
                {
-                    Goldilocks3::mul_batch(tmp1, tmp, challenge5, challenge5_ops);
+                    Goldilocks3::mul_batch(tmp1, tmp, challenge4, challenge4_ops);
                     break;
                }
                case 4:
                {
-                    Goldilocks3::mul_batch(tmp, tmp2, challenge6, challenge6_ops);
+                    Goldilocks3::mul_batch(tmp, tmp2, challenge5, challenge5_ops);
                     break;
                }
                case 5:
@@ -336,7 +336,7 @@ void ZkevmSteps::step52ns_parser_first(StepsParams &params, uint64_t nrows, uint
                case 16:
                {
                     // 1, 10, -> 16,: 768
-                    Goldilocks3::mul_batch(tmp, tmp, challenge5, challenge5_ops);
+                    Goldilocks3::mul_batch(tmp, tmp, challenge4, challenge4_ops);
                     Goldilocks3::add31_batch(tmp, tmp, &params.pols[args52[i_args] + i * args52[i_args + 1]], FIELD_EXTENSION, args52[i_args + 1]);
                     i_args += 2;
                     break;
@@ -344,7 +344,7 @@ void ZkevmSteps::step52ns_parser_first(StepsParams &params, uint64_t nrows, uint
                case 17:
                {
                     // 1, 9, -> 17,: 138
-                    Goldilocks3::mul_batch(tmp, tmp, challenge5, challenge5_ops);
+                    Goldilocks3::mul_batch(tmp, tmp, challenge4, challenge4_ops);
                     Goldilocks3::add_batch(tmp, tmp, &params.pols[args52[i_args] + i * args52[i_args + 1]], FIELD_EXTENSION, args52[i_args + 1]);
                     i_args += 2;
                     break;
@@ -352,7 +352,7 @@ void ZkevmSteps::step52ns_parser_first(StepsParams &params, uint64_t nrows, uint
                case 18:
                {
                     //  2, 11, 7, -> 18,: 1237
-                    Goldilocks3::mul_batch(tmp, tmp, challenge6, challenge6_ops);
+                    Goldilocks3::mul_batch(tmp, tmp, challenge5, challenge5_ops);
                     Goldilocks3::sub13c_batch(tmp2, &params.pols[args52[i_args] + i * args52[i_args + 1]], &evals_[args52[i_args + 2] * 3], args52[i_args + 1]);
                     Goldilocks3::add_batch(tmp, tmp, tmp2);
                     i_args += 3;
@@ -361,7 +361,7 @@ void ZkevmSteps::step52ns_parser_first(StepsParams &params, uint64_t nrows, uint
                case 19:
                {
                     // 2, 13, 7, -> 19: 332
-                    Goldilocks3::mul_batch(tmp, tmp, challenge6, challenge6_ops);
+                    Goldilocks3::mul_batch(tmp, tmp, challenge5, challenge5_ops);
                     Goldilocks3::sub13c_batch(tmp2, &params.pConstPols2ns->getElement(args52[i_args], i), &evals_[args52[i_args + 1] * 3], params.pConstPols2ns->numPols());
                     Goldilocks3::add_batch(tmp, tmp, tmp2);
                     i_args += 2;
@@ -370,7 +370,7 @@ void ZkevmSteps::step52ns_parser_first(StepsParams &params, uint64_t nrows, uint
                case 20:
                {
                     // 2, 12, 7, -> 20: 205
-                    Goldilocks3::mul_batch(tmp, tmp, challenge6, challenge6_ops);
+                    Goldilocks3::mul_batch(tmp, tmp, challenge5, challenge5_ops);
                     Goldilocks3::sub33c_batch(tmp2, &params.pols[args52[i_args] + i * args52[i_args + 1]], &evals_[args52[i_args + 2] * 3], args52[i_args + 1]);
                     Goldilocks3::add_batch(tmp, tmp, tmp2);
                     i_args += 3;
@@ -401,19 +401,19 @@ void ZkevmSteps::step52ns_parser_first_avx512(StepsParams &params, uint64_t nrow
           tmp2_1 = _mm512_setzero_si512();
           tmp2_2 = _mm512_setzero_si512();
 
-          // prepare constant arguments (challenge5, challenge6 and evals):
+          // prepare constant arguments (challenge4, challenge5 and evals):
+          Goldilocks::Element *challenge4 = params.challenges[4];
           Goldilocks::Element *challenge5 = params.challenges[5];
-          Goldilocks::Element *challenge6 = params.challenges[6];
+          Goldilocks::Element challenge4_ops[3];
           Goldilocks::Element challenge5_ops[3];
-          Goldilocks::Element challenge6_ops[3];
+
+          challenge4_ops[0] = challenge4[0] + challenge4[1];
+          challenge4_ops[1] = challenge4[0] + challenge4[2];
+          challenge4_ops[2] = challenge4[1] + challenge4[2];
 
           challenge5_ops[0] = challenge5[0] + challenge5[1];
           challenge5_ops[1] = challenge5[0] + challenge5[2];
           challenge5_ops[2] = challenge5[1] + challenge5[2];
-
-          challenge6_ops[0] = challenge6[0] + challenge6[1];
-          challenge6_ops[1] = challenge6[0] + challenge6[2];
-          challenge6_ops[2] = challenge6[1] + challenge6[2];
 
           Goldilocks::Element aux0_ops[AVX512_SIZE_], aux1_ops[AVX512_SIZE_], aux2_ops[AVX512_SIZE_];
           Goldilocks::Element aux0[AVX512_SIZE_], aux1[AVX512_SIZE_], aux2[AVX512_SIZE_];
@@ -424,12 +424,12 @@ void ZkevmSteps::step52ns_parser_first_avx512(StepsParams &params, uint64_t nrow
 
           for (int k = 0; k < AVX512_SIZE_; ++k)
           {
-               aux0_ops[k] = challenge5_ops[0];
-               aux1_ops[k] = challenge5_ops[1];
-               aux2_ops[k] = challenge5_ops[2];
-               aux0[k] = challenge5[0];
-               aux1[k] = challenge5[1];
-               aux2[k] = challenge5[2];
+               aux0_ops[k] = challenge4_ops[0];
+               aux1_ops[k] = challenge4_ops[1];
+               aux2_ops[k] = challenge4_ops[2];
+               aux0[k] = challenge4[0];
+               aux1[k] = challenge4[1];
+               aux2[k] = challenge4[2];
           }
           Goldilocks::load_avx512(chall5o0_, aux0_ops);
           Goldilocks::load_avx512(chall5o1_, aux1_ops);
@@ -440,12 +440,12 @@ void ZkevmSteps::step52ns_parser_first_avx512(StepsParams &params, uint64_t nrow
 
           for (int k = 0; k < AVX512_SIZE_; ++k)
           {
-               aux0_ops[k] = challenge6_ops[0];
-               aux1_ops[k] = challenge6_ops[1];
-               aux2_ops[k] = challenge6_ops[2];
-               aux0[k] = challenge6[0];
-               aux1[k] = challenge6[1];
-               aux2[k] = challenge6[2];
+               aux0_ops[k] = challenge5_ops[0];
+               aux1_ops[k] = challenge5_ops[1];
+               aux2_ops[k] = challenge5_ops[2];
+               aux0[k] = challenge5[0];
+               aux1[k] = challenge5[1];
+               aux2[k] = challenge5[2];
           }
           Goldilocks::load_avx512(chall6o0_, aux0_ops);
           Goldilocks::load_avx512(chall6o1_, aux1_ops);
@@ -463,7 +463,7 @@ void ZkevmSteps::step52ns_parser_first_avx512(StepsParams &params, uint64_t nrow
                {
                case 0:
                {
-                    Goldilocks3::mul13c_avx512(tmp0_0, tmp0_1, tmp0_2, &params.pols[args52[i_args] + i * args52[i_args + 1]], (Goldilocks3::Element &)*params.challenges[5], args52[i_args + 1]);
+                    Goldilocks3::mul13c_avx512(tmp0_0, tmp0_1, tmp0_2, &params.pols[args52[i_args] + i * args52[i_args + 1]], (Goldilocks3::Element &)*params.challenges[4], args52[i_args + 1]);
                     i_args += 2;
                     break;
                }
