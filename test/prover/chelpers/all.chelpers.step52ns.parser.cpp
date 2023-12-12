@@ -2,8 +2,8 @@
 #include "zhInv.hpp"
 #include "starks.hpp"
 #include "constant_pols_starks.hpp"
-#include "zkevmSteps.hpp"
-#include "zkevm.chelpers.step52ns.parser.hpp"
+#include "allSteps.hpp"
+#include "all.chelpers.step52ns.parser.hpp"
 #include <immintrin.h>
 
 void AllSteps::step52ns_parser_first_avx(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)

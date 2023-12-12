@@ -3,7 +3,7 @@
 #include "starks.hpp"
 #include "constant_pols_starks.hpp"
 #include "allSteps.hpp"
-#include "zkevm.chelpers.step3prev.parser.hpp"
+#include "all.chelpers.step3prev.parser.hpp"
 #include <immintrin.h>
 
 void AllSteps::step3prev_parser_first_avx(StepsParams &params, uint64_t nrows, uint64_t nrowsBatch)
@@ -706,7 +706,7 @@ void AllSteps::step3prev_parser_first_avx(StepsParams &params, uint64_t nrows, u
                }
                case 91:
                {
-                    Goldilocks::copy_avx(&params.pols[args3prev[i_args] + i * args3prev[i_args + 1]], args3prev[i_args + 1], &params.pConstPols->getElement(args3prev[i_args + 2], i));
+                    // Goldilocks::copy_avx(&params.pols[args3prev[i_args] + i * args3prev[i_args + 1]], args3prev[i_args + 1], &params.pConstPols->getElement(args3prev[i_args + 2], i));
                     i_args += 3;
                     break;
                }
@@ -742,7 +742,7 @@ void AllSteps::step3prev_parser_first_avx(StepsParams &params, uint64_t nrows, u
                }
                case 97:
                {
-                    Goldilocks::sub_avx512(&params.pols[args3[i_args] + i * args3[i_args + 1]], args3[i_args + 1], tmp3[args3[i_args + 2]], tmp3[args3[i_args + 3]]);
+                    // Goldilocks::sub_avx512(&params.pols[args3[i_args] + i * args3[i_args + 1]], args3[i_args + 1], tmp3[args3[i_args + 2]], tmp3[args3[i_args + 3]]);
                     i_args += 4;
                     break;
                }
@@ -1634,7 +1634,7 @@ void AllSteps::step3prev_parser_first_avx512(StepsParams &params, uint64_t nrows
                }
                case 91:
                {
-                    Goldilocks::copy_avx512(&params.pols[args3prev[i_args] + i * args3prev[i_args + 1]], args3prev[i_args + 1], &params.pConstPols->getElement(args3prev[i_args + 2], i));
+                    //Goldilocks::copy_avx512(&params.pols[args3prev[i_args] + i * args3prev[i_args + 1]], args3prev[i_args + 1], &params.pConstPols->getElement(args3prev[i_args + 2], i));
                     i_args += 3;
                     break;
                }
@@ -1670,7 +1670,7 @@ void AllSteps::step3prev_parser_first_avx512(StepsParams &params, uint64_t nrows
                }
                case 97:
                {
-                    Goldilocks::sub_avx(&params.pols[args3[i_args] + i * args3[i_args + 1]], args3[i_args + 1], tmp3[args3[i_args + 2]], tmp3[args3[i_args + 3]]);
+                    //Goldilocks::sub_avx(&params.pols[args3[i_args] + i * args3[i_args + 1]], args3[i_args + 1], tmp3[args3[i_args + 2]], tmp3[args3[i_args + 3]]);
                     i_args += 4;
                     break;
                }

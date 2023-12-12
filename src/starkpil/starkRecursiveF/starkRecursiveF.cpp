@@ -216,7 +216,16 @@ void StarkRecursiveF::genProof(FRIProofC12 &proof, Goldilocks::Element publicInp
 
         Polinomial m = starkInfo.getPolinomial(mem, starkInfo.cm_n[numCommited++]);
         
-        Polinomial::calculateMulCounter(m, fPols, tPols, starkInfo.puCtx[i].tVals.size());
+        Polinomial fSel;
+        Polinomial tSel;
+
+        if(starkInfo.puCtx[i].hasSelT) {
+            tSel = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].tSelExpId)]);
+        }
+        if(starkInfo.puCtx[i].hasSelF) {
+            fSel = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fSelExpId)]);
+        }
+        Polinomial::calculateMulCounter(m, fPols, tPols, fSel, tSel, starkInfo.puCtx[i].hasSelF, starkInfo.puCtx[i].hasSelT, starkInfo.puCtx[i].tVals.size());
     }
     TimerStopAndLog(STARK_RECURSIVE_F_STEP_1_CALCULATE_MULTIPLICITIES);
 

@@ -255,56 +255,240 @@ public:
     {
         uint64_t size = m.degree();
 
-        std::map<std::vector<Goldilocks::Element>, vector<uint64_t>, CompareFe> t;
-    
+        std::map<std::vector<Goldilocks::Element>, uint64_t, CompareFe> idx_t;
+
+        vector<int> counter(size, 0);
+
         for(uint64_t i = 0; i < size; ++i) {
             if(hasSelT && tSel.firstValueU64(i) == 0) continue;
-            std::vector<Goldilocks::Element> tPol;
+            vector<Goldilocks::Element> key;
             for(uint64_t l = 0; l < nPols; l++) {
-                tPol.push_back(tPols[l].getValue(i));
+                key.push_back(tPols[l].getValue(i));
             }
 
-            auto const result = t.find(tPol);
-            if(result != t.end()) {
-                result->second.push_back(i);
-            } else {
-                std::pair<vector<Goldilocks::Element>, vector<uint64_t>> pr(tPol, {i});
-                t.insert(pr);
-            }
+            idx_t[key] = i + 1;
         }
 
-        vector<uint64_t> counter(size, 0);
-
         for(uint64_t i = 0; i < size; ++i) {
-            if(hasSelT && fSel.firstValueU64(i) == 0) continue;
-            std::vector<Goldilocks::Element> fPol;
+            if(hasSelF && fSel.firstValueU64(i) == 0) continue;
+            vector<Goldilocks::Element> key;
             for(uint64_t l = 0; l < nPols; l++) {
-                fPol.push_back(fPols[l].getValue(i));
+                key.push_back(fPols[l].getValue(i));
             }
 
-            auto const result = t.find(fPol);
-            if (result == t.end())
-            {   
+            uint64_t indx = idx_t[key];
+            if(indx == 0) {
                 std::string errorMsg = "Polinomial::calculateMulCounter() Number not included [";
                 for(uint64_t l = 0; l < nPols; l++) {
-                    errorMsg += Goldilocks::toString(fPol[l]);
+                    errorMsg += Goldilocks::toString(key[l]);
                     errorMsg += l != nPols - 1 ? ", " : "]";
                 }                
                 zklog.error(errorMsg);
                 exitProcess();
-            } else {
-                for(uint64_t j = 0; j < result->second.size(); ++j) {
-                    uint64_t key = result->second[j];
-                    counter[key] += 1;
-                }
             }
+            ++counter[indx - 1];
         }
 
         for(uint64_t i = 0; i < size; ++i) {
-            m[i][0] = Goldilocks::fromU64(counter[i]);
+            if(hasSelT && tSel.firstValueU64(i) == 0) continue;
+            vector<Goldilocks::Element> key;
+            for(uint64_t l = 0; l < nPols; l++) {
+                key.push_back(tPols[l].getValue(i));
+            }
+           
+            m[i][0] = Goldilocks::fromU64(counter[idx_t[key] - 1]);
+        }  
+    }
+
+    static void calculateMulCounter_opt(Polinomial &m, Polinomial* fPols, Polinomial* tPols, Polinomial &fSel, Polinomial &tSel, bool hasSelF, bool hasSelT, uint64_t nPols, uint64_t *buffer, uint64_t size_keys)
+    {
+        uint64_t size = m.degree();
+
+        vector<bool> touched(size_keys, false);
+        vector<int> counter(size, 0);
+
+        uint32_t pos = 0;
+        uint64_t key[nPols];
+
+        uint64_t tot_pols = 1 + 2*nPols;
+        if(hasSelF) tot_pols += 1;
+        if(hasSelT) tot_pols += 1;
+        
+        // double time1 = omp_get_wtime();
+        for (uint64_t i = 0; i < size; i++)
+        {
+            if(hasSelT && tSel.firstValueU64(i) == 0) continue;
+            for(uint64_t l = 0; l < nPols; l++) {
+                key[l] = tPols[l].firstValueU64(i);
+            }
+            uint64_t ind = key[0] % size_keys;
+            if (!touched[ind])
+            {
+                buffer[ind] = pos;
+                uint32_t offset = size_keys + (nPols + 2) * pos;
+                for(uint64_t l = 0; l < nPols; l++) {
+                    buffer[offset + l] = key[l];
+                }
+                buffer[offset + nPols] = i;
+                buffer[offset + nPols + 1] = 0;
+                pos += 1;
+                touched[ind] = true;
+            }
+            else
+            {
+                uint64_t pos_ = buffer[ind];
+                bool exit_ = false;
+                do
+                {
+                    uint32_t offset = size_keys + (nPols + 2) * pos_;
+                    bool equal = true;
+                    for(uint64_t l = 0; l < nPols; l++) {
+                        if(buffer[offset + l] != key[l]) {
+                            equal = false;
+                            break;
+                        };
+                    }
+                    if (equal) {
+                        buffer[offset + nPols] = i;
+                        exit_ = true;
+                    }
+                    else
+                    {
+                        if (buffer[offset + nPols + 1] != 0)
+                        {
+                            pos_ = buffer[offset + nPols + 1];
+                        }
+                        else
+                        {
+                            buffer[offset + nPols + 1] = pos;
+                            // new offset
+                            offset = size_keys + (nPols + 2) * pos;
+                            for(uint64_t l = 0; l < nPols; l++) {
+                                buffer[offset + l] = key[l];
+                            }
+                            buffer[offset + nPols] = i;
+                            buffer[offset + nPols + 1] = 0;
+                            pos += 1;
+                            exit_ = true;
+                        }
+                    }
+                } while (!exit_);
+            }
         }
 
-        t.clear();        
+        // double time2 = omp_get_wtime();
+
+        for (uint64_t i = 0; i < size; i++)
+        {
+            uint64_t indx = 0;
+            if(hasSelF && fSel.firstValueU64(i) == 0) continue;
+            for(uint64_t l = 0; l < nPols; l++) {
+                key[l] = fPols[l].firstValueU64(i);
+            }
+            uint64_t ind = key[0] % size_keys;
+            if (!touched[ind])
+            {
+                std::string errorMsg = "Polinomial::calculateMulCounter() Number not included [";
+                for(uint64_t l = 0; l < nPols; l++) {
+                    errorMsg += key[l];
+                    errorMsg += l != nPols - 1 ? ", " : "]";
+                }                
+                zklog.error(errorMsg);
+                exitProcess();
+            }
+            uint64_t pos_ = buffer[ind];
+            bool exit_ = false;
+            do
+            {
+                uint32_t offset = size_keys + (nPols + 2) * pos_;
+
+                bool equal = true;
+                for(uint64_t l = 0; l < nPols; l++) {
+                    if(buffer[offset + l] != key[l]) {
+                        equal = false;
+                        break;
+                    };
+                }
+                if (equal) {
+                    indx = buffer[offset + nPols];
+                    exit_ = true;
+                }
+                else
+                {
+                    if (buffer[offset + nPols + 1] != 0)
+                    {
+                        pos_ = buffer[offset + nPols + 1];
+                    }
+                    else
+                    {
+                        std::string errorMsg = "Polinomial::calculateMulCounter() Number not included [";
+                        for(uint64_t l = 0; l < nPols; l++) {
+                            errorMsg += key[l];
+                            errorMsg += l != nPols - 1 ? ", " : "]";
+                        }                
+                        zklog.error(errorMsg);
+                        exitProcess();
+                    }
+                }
+            } while (!exit_);
+            ++counter[indx];
+        }
+
+        for(uint64_t i = 0; i < size; ++i) {
+            uint64_t indx = 0;
+            if(hasSelT && tSel.firstValueU64(i) == 0) continue;
+            for(uint64_t l = 0; l < nPols; l++) {
+                key[l] = tPols[l].firstValueU64(i);
+            }
+            uint64_t ind = key[0] % size_keys;
+            if (!touched[ind])
+            {
+                std::string errorMsg = "Polinomial::calculateMulCounter() Number not included [";
+                for(uint64_t l = 0; l < nPols; l++) {
+                    errorMsg += key[l];
+                    errorMsg += l != nPols - 1 ? ", " : "]";
+                }                
+                zklog.error(errorMsg);
+                exitProcess();
+            }
+            uint64_t pos_ = buffer[ind];
+            bool exit_ = false;
+            do
+            {
+                uint32_t offset = size_keys + (nPols + 2) * pos_;
+
+                bool equal = true;
+                for(uint64_t l = 0; l < nPols; l++) {
+                    if(buffer[offset + l] != key[l]) {
+                        equal = false;
+                        break;
+                    };
+                }
+                if (equal) {
+                    indx = buffer[offset + nPols];
+                    exit_ = true;
+                }
+                else
+                {
+                    if (buffer[offset + nPols + 1] != 0)
+                    {
+                        pos_ = buffer[offset + nPols + 1];
+                    }
+                    else
+                    {
+                        std::string errorMsg = "Polinomial::calculateMulCounter() Number not included [";
+                        for(uint64_t l = 0; l < nPols; l++) {
+                            errorMsg += key[l];
+                            errorMsg += l != nPols - 1 ? ", " : "]";
+                        }                
+                        zklog.error(errorMsg);
+                        exitProcess();
+                    }
+                }
+            } while (!exit_);
+           
+            m[i][0] = Goldilocks::fromU64(counter[indx]);
+        }
     }
 
     static void calculateH1H2(Polinomial &h1, Polinomial &h2, Polinomial &fPol, Polinomial &tPol)
