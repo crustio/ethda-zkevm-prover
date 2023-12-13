@@ -603,6 +603,12 @@ void ZkevmSteps::step1_parser_first_avx(StepsParams &params, uint64_t nrows, uin
                     i_args += 4;
                     break;
                }
+               case 118:
+               {
+                    Goldilocks::add_avx(&params.pols[args1[i_args] + i * args1[i_args + 1]], args1[i_args + 1], &params.pols[args1[i_args + 2] + i * args1[i_args + 3]], args1[i_args + 3], &params.pols[args1[i_args + 4] + i * args1[i_args + 5]], args1[i_args + 5]);
+                    i_args += 6;
+                    break;
+               }
                default:
                {
                     std::cout << " Wrong operation in step42ns_first!" << std::endl;
