@@ -209,6 +209,12 @@ void AllSteps::step52ns_parser_first_avx(StepsParams &params, uint64_t nrows, ui
                     i_args += 3;
                     break;
                }
+               case 21:
+               {
+                    Goldilocks3::sub13c_avx(tmp0_0, tmp0_1, tmp0_2, &params.pols[args52[i_args] + i * args52[i_args + 1]], &evals_[args52[i_args + 2] * 3], args52[i_args + 1]);
+                    i_args += 3;
+                    break;
+               }
                default:
                     std::ostringstream message;
                     message << "Invalid operation in step52ns_first, component: " << kk << " value: " << op52[kk];
@@ -373,6 +379,12 @@ void AllSteps::step52ns_parser_first(StepsParams &params, uint64_t nrows, uint64
                     Goldilocks3::mul_batch(tmp, tmp, challenge5, challenge5_ops);
                     Goldilocks3::sub33c_batch(tmp2, &params.pols[args52[i_args] + i * args52[i_args + 1]], &evals_[args52[i_args + 2] * 3], args52[i_args + 1]);
                     Goldilocks3::add_batch(tmp, tmp, tmp2);
+                    i_args += 3;
+                    break;
+               }
+               case 21:
+               {
+                    Goldilocks3::sub13c_batch(tmp, &params.pols[args52[i_args] + i * args52[i_args + 1]], &evals_[args52[i_args + 2] * 3], args52[i_args + 1]);
                     i_args += 3;
                     break;
                }
@@ -587,6 +599,12 @@ void AllSteps::step52ns_parser_first_avx512(StepsParams &params, uint64_t nrows,
                     Goldilocks3::mul_avx512(tmp0_0, tmp0_1, tmp0_2, tmp0_0, tmp0_1, tmp0_2, chall50_, chall51_, chall52_, chall5o0_, chall5o1_, chall5o2_);
                     Goldilocks3::sub33c_avx512(tmp2_0, tmp2_1, tmp2_2, &params.pols[args52[i_args] + i * args52[i_args + 1]], &evals_[args52[i_args + 2] * 3], args52[i_args + 1]);
                     Goldilocks3::add_avx512(tmp0_0, tmp0_1, tmp0_2, tmp0_0, tmp0_1, tmp0_2, tmp2_0, tmp2_1, tmp2_2);
+                    i_args += 3;
+                    break;
+               }
+               case 21:
+               {
+                    Goldilocks3::sub13c_avx512(tmp0_0, tmp0_1, tmp0_2, &params.pols[args52[i_args] + i * args52[i_args + 1]], &evals_[args52[i_args + 2] * 3], args52[i_args + 1]);
                     i_args += 3;
                     break;
                }
