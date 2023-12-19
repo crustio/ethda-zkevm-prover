@@ -24,4 +24,18 @@ public:
     }
 };
 
+class GoldilocksHash {
+public:
+    size_t operator()(const Goldilocks::Element& a) const {
+        return Goldilocks::toU64(a);
+    }
+};
+
+class GoldilocksEqual {
+public:
+    bool operator()(const Goldilocks::Element& a, const Goldilocks::Element& b) const {
+       return Goldilocks::equal(a, b);
+    }
+};
+
 #endif

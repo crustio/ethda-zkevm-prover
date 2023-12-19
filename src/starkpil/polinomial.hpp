@@ -251,243 +251,35 @@ public:
         return _pAddress[idx * _offset];
     }
     
-    static void calculateMulCounter(Polinomial &m, Polinomial* fPols, Polinomial* tPols, Polinomial &fSel, Polinomial &tSel, bool hasSelF, bool hasSelT, uint64_t nPols)
-    {
+    static void calculateMulCounter(Polinomial &m, Goldilocks::Element* fHash, Goldilocks::Element* tHash, Polinomial &fSel, Polinomial &tSel, bool hasSelF, bool hasSelT) {
         uint64_t size = m.degree();
 
-        std::map<std::vector<Goldilocks::Element>, uint64_t, CompareFe> idx_t;
-
-        vector<int> counter(size, 0);
-
-        for(uint64_t i = 0; i < size; ++i) {
-            if(hasSelT && tSel.firstValueU64(i) == 0) continue;
-            vector<Goldilocks::Element> key;
-            for(uint64_t l = 0; l < nPols; l++) {
-                key.push_back(tPols[l].getValue(i));
-            }
-
-            idx_t[key] = i + 1;
-        }
-
-        for(uint64_t i = 0; i < size; ++i) {
-            if(hasSelF && fSel.firstValueU64(i) == 0) continue;
-            vector<Goldilocks::Element> key;
-            for(uint64_t l = 0; l < nPols; l++) {
-                key.push_back(fPols[l].getValue(i));
-            }
-
-            uint64_t indx = idx_t[key];
-            if(indx == 0) {
-                std::string errorMsg = "Polinomial::calculateMulCounter() Number not included [";
-                for(uint64_t l = 0; l < nPols; l++) {
-                    errorMsg += Goldilocks::toString(key[l]);
-                    errorMsg += l != nPols - 1 ? ", " : "]";
-                }                
-                zklog.error(errorMsg);
-                exitProcess();
-            }
-            ++counter[indx - 1];
-        }
-
-        for(uint64_t i = 0; i < size; ++i) {
-            if(hasSelT && tSel.firstValueU64(i) == 0) continue;
-            vector<Goldilocks::Element> key;
-            for(uint64_t l = 0; l < nPols; l++) {
-                key.push_back(tPols[l].getValue(i));
-            }
-           
-            m[i][0] = Goldilocks::fromU64(counter[idx_t[key] - 1]);
-        }  
-    }
-
-    static void calculateMulCounter_opt(Polinomial &m, Polinomial* fPols, Polinomial* tPols, Polinomial &fSel, Polinomial &tSel, bool hasSelF, bool hasSelT, uint64_t nPols, uint64_t *buffer, uint64_t size_keys)
-    {
-        uint64_t size = m.degree();
-
-        vector<bool> touched(size_keys, false);
-        vector<int> counter(size, 0);
-
-        uint32_t pos = 0;
-        uint64_t key[nPols];
-
-        uint64_t tot_pols = 1 + 2*nPols;
-        if(hasSelF) tot_pols += 1;
-        if(hasSelT) tot_pols += 1;
+        std::unordered_map<Goldilocks::Element, int64_t, GoldilocksHash, GoldilocksEqual> multiplicities;
         
-        // double time1 = omp_get_wtime();
-        for (uint64_t i = 0; i < size; i++)
-        {
-            if(hasSelT && tSel.firstValueU64(i) == 0) continue;
-            for(uint64_t l = 0; l < nPols; l++) {
-                key[l] = tPols[l].firstValueU64(i);
-            }
-            uint64_t ind = key[0] % size_keys;
-            if (!touched[ind])
-            {
-                buffer[ind] = pos;
-                uint32_t offset = size_keys + (nPols + 2) * pos;
-                for(uint64_t l = 0; l < nPols; l++) {
-                    buffer[offset + l] = key[l];
-                }
-                buffer[offset + nPols] = i;
-                buffer[offset + nPols + 1] = 0;
-                pos += 1;
-                touched[ind] = true;
-            }
-            else
-            {
-                uint64_t pos_ = buffer[ind];
-                bool exit_ = false;
-                do
-                {
-                    uint32_t offset = size_keys + (nPols + 2) * pos_;
-                    bool equal = true;
-                    for(uint64_t l = 0; l < nPols; l++) {
-                        if(buffer[offset + l] != key[l]) {
-                            equal = false;
-                            break;
-                        };
-                    }
-                    if (equal) {
-                        buffer[offset + nPols] = i;
-                        exit_ = true;
-                    }
-                    else
-                    {
-                        if (buffer[offset + nPols + 1] != 0)
-                        {
-                            pos_ = buffer[offset + nPols + 1];
-                        }
-                        else
-                        {
-                            buffer[offset + nPols + 1] = pos;
-                            // new offset
-                            offset = size_keys + (nPols + 2) * pos;
-                            for(uint64_t l = 0; l < nPols; l++) {
-                                buffer[offset + l] = key[l];
-                            }
-                            buffer[offset + nPols] = i;
-                            buffer[offset + nPols + 1] = 0;
-                            pos += 1;
-                            exit_ = true;
-                        }
-                    }
-                } while (!exit_);
-            }
-        }
+        uint64_t nVals = 0;
 
-        // double time2 = omp_get_wtime();
-
-        for (uint64_t i = 0; i < size; i++)
-        {
-            uint64_t indx = 0;
+        for(uint64_t i = 0; i < size; ++i) {
             if(hasSelF && fSel.firstValueU64(i) == 0) continue;
-            for(uint64_t l = 0; l < nPols; l++) {
-                key[l] = fPols[l].firstValueU64(i);
+            if(multiplicities.count(fHash[i]) > 0) {
+                multiplicities[fHash[i]] -= 1;
+            } else {
+                multiplicities[fHash[i]] = -1;
+                nVals++;
             }
-            uint64_t ind = key[0] % size_keys;
-            if (!touched[ind])
-            {
-                std::string errorMsg = "Polinomial::calculateMulCounter() Number not included [";
-                for(uint64_t l = 0; l < nPols; l++) {
-                    errorMsg += key[l];
-                    errorMsg += l != nPols - 1 ? ", " : "]";
-                }                
-                zklog.error(errorMsg);
-                exitProcess();
-            }
-            uint64_t pos_ = buffer[ind];
-            bool exit_ = false;
-            do
-            {
-                uint32_t offset = size_keys + (nPols + 2) * pos_;
-
-                bool equal = true;
-                for(uint64_t l = 0; l < nPols; l++) {
-                    if(buffer[offset + l] != key[l]) {
-                        equal = false;
-                        break;
-                    };
-                }
-                if (equal) {
-                    indx = buffer[offset + nPols];
-                    exit_ = true;
-                }
-                else
-                {
-                    if (buffer[offset + nPols + 1] != 0)
-                    {
-                        pos_ = buffer[offset + nPols + 1];
-                    }
-                    else
-                    {
-                        std::string errorMsg = "Polinomial::calculateMulCounter() Number not included [";
-                        for(uint64_t l = 0; l < nPols; l++) {
-                            errorMsg += key[l];
-                            errorMsg += l != nPols - 1 ? ", " : "]";
-                        }                
-                        zklog.error(errorMsg);
-                        exitProcess();
-                    }
-                }
-            } while (!exit_);
-            ++counter[indx];
         }
 
         for(uint64_t i = 0; i < size; ++i) {
-            uint64_t indx = 0;
-            if(hasSelT && tSel.firstValueU64(i) == 0) continue;
-            for(uint64_t l = 0; l < nPols; l++) {
-                key[l] = tPols[l].firstValueU64(i);
+            if((hasSelT && tSel.firstValueU64(i) == 0) || !multiplicities.count(tHash[i])) continue;
+            if(multiplicities[tHash[i]] < 0) {
+                multiplicities[tHash[i]] *= (-1);
+                nVals--;
             }
-            uint64_t ind = key[0] % size_keys;
-            if (!touched[ind])
-            {
-                std::string errorMsg = "Polinomial::calculateMulCounter() Number not included [";
-                for(uint64_t l = 0; l < nPols; l++) {
-                    errorMsg += key[l];
-                    errorMsg += l != nPols - 1 ? ", " : "]";
-                }                
-                zklog.error(errorMsg);
-                exitProcess();
-            }
-            uint64_t pos_ = buffer[ind];
-            bool exit_ = false;
-            do
-            {
-                uint32_t offset = size_keys + (nPols + 2) * pos_;
+            m[i][0] = Goldilocks::fromU64(multiplicities[tHash[i]]);
+        }
 
-                bool equal = true;
-                for(uint64_t l = 0; l < nPols; l++) {
-                    if(buffer[offset + l] != key[l]) {
-                        equal = false;
-                        break;
-                    };
-                }
-                if (equal) {
-                    indx = buffer[offset + nPols];
-                    exit_ = true;
-                }
-                else
-                {
-                    if (buffer[offset + nPols + 1] != 0)
-                    {
-                        pos_ = buffer[offset + nPols + 1];
-                    }
-                    else
-                    {
-                        std::string errorMsg = "Polinomial::calculateMulCounter() Number not included [";
-                        for(uint64_t l = 0; l < nPols; l++) {
-                            errorMsg += key[l];
-                            errorMsg += l != nPols - 1 ? ", " : "]";
-                        }                
-                        zklog.error(errorMsg);
-                        exitProcess();
-                    }
-                }
-            } while (!exit_);
-           
-            m[i][0] = Goldilocks::fromU64(counter[indx]);
+        if(nVals != 0) {
+            zklog.error("Polinomial::calculateMulCounter() Some of the f values are not included in t");
+            exitProcess();
         }
     }
 
