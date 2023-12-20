@@ -251,15 +251,15 @@ public:
         return _pAddress[idx * _offset];
     }
     
-    static void calculateMulCounter(Polinomial &m, Goldilocks::Element* fHash, Goldilocks::Element* tHash, Polinomial &fSel, Polinomial &tSel, bool hasSelF, bool hasSelT) {
+    static void calculateMulCounter(Polinomial &m, int64_t* fHash, int64_t* tHash) {
         uint64_t size = m.degree();
 
-        std::unordered_map<Goldilocks::Element, int64_t, GoldilocksHash, GoldilocksEqual> multiplicities;
+        std::unordered_map<int64_t, int64_t> multiplicities;
         
         uint64_t nVals = 0;
 
         for(uint64_t i = 0; i < size; ++i) {
-            if(hasSelF && fSel.firstValueU64(i) == 0) continue;
+            if(fHash[i] == -1) continue;
             if(multiplicities.count(fHash[i]) > 0) {
                 multiplicities[fHash[i]] -= 1;
             } else {
@@ -269,7 +269,7 @@ public:
         }
 
         for(uint64_t i = 0; i < size; ++i) {
-            if((hasSelT && tSel.firstValueU64(i) == 0) || !multiplicities.count(tHash[i])) continue;
+            if(tHash[i] == -1 || !multiplicities.count(tHash[i])) continue;
             if(multiplicities[tHash[i]] < 0) {
                 multiplicities[tHash[i]] *= (-1);
                 nVals--;
@@ -281,6 +281,8 @@ public:
             zklog.error("Polinomial::calculateMulCounter() Some of the f values are not included in t");
             exitProcess();
         }
+
+        multiplicities.clear();
     }
 
     static void calculateH1H2(Polinomial &h1, Polinomial &h2, Polinomial &fPol, Polinomial &tPol)
