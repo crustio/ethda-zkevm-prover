@@ -118,11 +118,11 @@ void Starks::genProof(FRIProof &proof, Goldilocks::Element *publicInputs, Goldil
         for (uint64_t j = 0; j < N; j++) {
             uint64_t pos = i * N + j;
             if(!starkInfo.puCtx[i].hasSelT || !Goldilocks::isZero(mem[tSelPolInfo[i].offset + j * tSelPolInfo[i].nCols])) {
-                tHash[pos] = hash(j, tPolsInfo[i]);
+                tHash[pos] = Polinomial::calculateHash(mem, j, tPolsInfo[i]);
             }
 
             if(!starkInfo.puCtx[i].hasSelF || !Goldilocks::isZero(mem[fSelPolInfo[i].offset + j * fSelPolInfo[i].nCols])) {
-                fHash[pos] = hash(j, fPolsInfo[i]);
+                fHash[pos] = Polinomial::calculateHash(mem, j, fPolsInfo[i]);
             }
         }
     }
@@ -417,20 +417,6 @@ void Starks::genProof(FRIProof &proof, Goldilocks::Element *publicInputs, Goldil
     std::memcpy(&proof.proofs.root3[0], root2.address(), HASH_SIZE * sizeof(Goldilocks::Element));
     std::memcpy(&proof.proofs.root4[0], root3.address(), HASH_SIZE * sizeof(Goldilocks::Element));
     TimerStopAndLog(STARK_STEP_FRI);
-}
-
-uint64_t Starks::hash(uint64_t index, vector<PolSectionInfo> polsInfo) {
-    uint64_t nPols = polsInfo.size();
-    if(nPols == 1) {
-        return Goldilocks::toU64(mem[polsInfo[0].offset + index * polsInfo[0].nCols]);
-    } 
-
-    uint64_t hashValue = nPols;
-    for(uint64_t l = 0; l < nPols; l++) {
-        uint64_t value = Goldilocks::toU64(mem[polsInfo[l].offset + index * polsInfo[l].nCols]);
-        hashValue ^= value + 0x9e3779b9 + (hashValue << 6) + (hashValue >> 2);
-    }
-    return hashValue;
 }
 
 Polinomial *Starks::transposeH1H2Columns(void *pAddress, uint64_t &numCommited, Goldilocks::Element *pBuffer)

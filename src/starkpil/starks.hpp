@@ -26,12 +26,6 @@ struct StarkFiles
     std::string zkevmStarkInfo;
 };
 
-struct PolSectionInfo
-{
-    uint64_t offset;
-    uint64_t nCols;
-};
-
 class Starks
 {
 public:
@@ -230,7 +224,6 @@ public:
     Polinomial *transposeZColumns(void *pAddress, uint64_t &numCommited, Goldilocks::Element *pBuffer);
     void transposeZRows(void *pAddress, uint64_t &numCommited, Polinomial *transPols);
     void evmap(void *pAddress, Polinomial &evals, Polinomial &LEv, Polinomial &LpEv);
-    uint64_t hash(uint64_t index, vector<PolSectionInfo> polsInfo); 
 };
 
 #endif // STARKS_H

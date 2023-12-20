@@ -8,6 +8,11 @@
 #include "zklog.hpp"
 #include "exit_process.hpp"
 
+struct PolSectionInfo
+{
+    uint64_t offset;
+    uint64_t nCols;
+};
 class Polinomial
 {
 private:
@@ -249,6 +254,20 @@ public:
     inline Goldilocks::Element getValue(uint64_t idx)
     {
         return _pAddress[idx * _offset];
+    }
+
+    static uint64_t calculateHash(Goldilocks::Element* pAddress, uint64_t index, vector<PolSectionInfo> polsInfo) {
+        uint64_t nPols = polsInfo.size();
+        if(nPols == 1) {
+            return Goldilocks::toU64(pAddress[polsInfo[0].offset + index * polsInfo[0].nCols]);
+        } 
+
+        uint64_t hashValue = nPols;
+        for(uint64_t l = 0; l < nPols; l++) {
+            uint64_t value = Goldilocks::toU64(pAddress[polsInfo[l].offset + index * polsInfo[l].nCols]);
+            hashValue ^= value + 0x9e3779b9 + (hashValue << 6) + (hashValue >> 2);
+        }
+        return hashValue;
     }
     
     static void calculateMulCounter(Polinomial &m, int64_t* fHash, int64_t* tHash) {

@@ -118,20 +118,5 @@ public:
 
     /* Generates a proof from the address to all polynomials memory area, and the committed pols */
     void genProof(FRIProofC12 &proof, Goldilocks::Element publicInputs[8]);
-
-    uint64_t hash(uint64_t index, vector<PolSectionInfo> polsInfo) {
-        uint64_t nPols = polsInfo.size();
-        if(nPols == 1) {
-            return Goldilocks::toU64(mem[polsInfo[0].offset + index * polsInfo[0].nCols]);
-        } 
-
-        uint64_t hashValue = nPols;
-        for(uint64_t l = 0; l < nPols; l++) {
-            uint64_t value = Goldilocks::toU64(mem[polsInfo[l].offset + index * polsInfo[l].nCols]);
-            hashValue ^= value + 0x9e3779b9 + (hashValue << 6) + (hashValue >> 2);
-        }
-        return hashValue;
-    }
-
 };
 #endif

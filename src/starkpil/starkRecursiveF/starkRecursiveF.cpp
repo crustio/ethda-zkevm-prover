@@ -211,8 +211,6 @@ void StarkRecursiveF::genProof(FRIProofC12 &proof, Goldilocks::Element publicInp
     vector<PolSectionInfo> tSelPolInfo(starkInfo.puCtx.size());
 
     #pragma omp parallel for 
-#pragma omp parallel for
-    #pragma omp parallel for 
     for (uint64_t i = 0; i < starkInfo.puCtx.size(); i++) {
         uint64_t nPols = starkInfo.puCtx[i].tVals.size();
         tPolsInfo[i] = vector<PolSectionInfo>(nPols);
@@ -247,11 +245,11 @@ void StarkRecursiveF::genProof(FRIProofC12 &proof, Goldilocks::Element publicInp
         for (uint64_t j = 0; j < N; j++) {
             uint64_t pos = i * N + j;
             if(!starkInfo.puCtx[i].hasSelT || !Goldilocks::isZero(mem[tSelPolInfo[i].offset + j * tSelPolInfo[i].nCols])) {
-                tHash[pos] = hash(j, tPolsInfo[i]);
+                tHash[pos] = Polinomial::calculateHash(mem, j, tPolsInfo[i]);
             }
 
             if(!starkInfo.puCtx[i].hasSelF || !Goldilocks::isZero(mem[fSelPolInfo[i].offset + j * fSelPolInfo[i].nCols])) {
-                fHash[pos] = hash(j, fPolsInfo[i]);
+                fHash[pos] = Polinomial::calculateHash(mem, j, fPolsInfo[i]);
             }
         }
     }
