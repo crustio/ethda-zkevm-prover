@@ -197,37 +197,80 @@ void StarkRecursiveF::genProof(FRIProofC12 &proof, Goldilocks::Element publicInp
     }
     TimerStopAndLog(STARK_RECURSIVE_F_STEP_1_CALCULATE_EXPS);
 
-    TimerStart(STARK_RECURSIVE_F_STEP_1_CALCULATE_MULTIPLICITIES);
-#pragma omp parallel for
-    for (uint64_t i = 0; i < starkInfo.puCtx.size(); i++)
-    {
-        Polinomial *tPols = new Polinomial[starkInfo.puCtx[i].tVals.size()];
-        Polinomial *fPols = new Polinomial[starkInfo.puCtx[i].fVals.size()];
+   TimerStart(STARK_STEP_1_CALCULATE_MULTIPLICITIES);
 
-        for (uint64_t j = 0; j < starkInfo.puCtx[i].tVals.size(); j++) 
-        {
-            tPols[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].tVals[j])]);
-        }
+    int64_t* fHash = new int64_t[N * starkInfo.puCtx.size()];
+    int64_t* tHash = new int64_t[N * starkInfo.puCtx.size()];
 
-        for (uint64_t j = 0; j < starkInfo.puCtx[i].fVals.size(); j++) 
-        {
-            fPols[j] = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fVals[j])]);
-        }
-
-        Polinomial m = starkInfo.getPolinomial(mem, starkInfo.cm_n[numCommited++]);
+    memset(fHash, -1, N * starkInfo.puCtx.size() * sizeof(int64_t));
+    memset(fHash, -1, N * starkInfo.puCtx.size() * sizeof(int64_t));
         
-        Polinomial fSel;
-        Polinomial tSel;
+    vector<vector<PolSectionInfo>> tPolsInfo(starkInfo.puCtx.size());
+    vector<vector<PolSectionInfo>> fPolsInfo(starkInfo.puCtx.size());
+    vector<PolSectionInfo> fSelPolInfo(starkInfo.puCtx.size());
+    vector<PolSectionInfo> tSelPolInfo(starkInfo.puCtx.size());
+
+    #pragma omp parallel for 
+#pragma omp parallel for
+    #pragma omp parallel for 
+    for (uint64_t i = 0; i < starkInfo.puCtx.size(); i++) {
+        uint64_t nPols = starkInfo.puCtx[i].tVals.size();
+        tPolsInfo[i] = vector<PolSectionInfo>(nPols);
+        fPolsInfo[i] = vector<PolSectionInfo>(nPols);
+        for (uint64_t j = 0; j < nPols; j++) 
+        {
+            VarPolMap polInfo = starkInfo.varPolMap[starkInfo.exp2pol[to_string(starkInfo.puCtx[i].tVals[j])]];
+            tPolsInfo[i][j] = {starkInfo.mapOffsets.section[polInfo.section] + polInfo.sectionPos, starkInfo.mapSectionsN.section[polInfo.section]};
+        }
+
+        for (uint64_t j = 0; j < nPols; j++) 
+        {
+            VarPolMap polInfo = starkInfo.varPolMap[starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fVals[j])]];
+            fPolsInfo[i][j] = {starkInfo.mapOffsets.section[polInfo.section] + polInfo.sectionPos, starkInfo.mapSectionsN.section[polInfo.section]};
+        }
 
         if(starkInfo.puCtx[i].hasSelT) {
-            tSel = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].tSelExpId)]);
+            VarPolMap polInfo = starkInfo.varPolMap[starkInfo.exp2pol[to_string(starkInfo.puCtx[i].tSelExpId)]];
+            tSelPolInfo[i] = {starkInfo.mapOffsets.section[polInfo.section] + polInfo.sectionPos, starkInfo.mapSectionsN.section[polInfo.section]};
         }
+
         if(starkInfo.puCtx[i].hasSelF) {
-            fSel = starkInfo.getPolinomial(mem, starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fSelExpId)]);
+            VarPolMap polInfo = starkInfo.varPolMap[starkInfo.exp2pol[to_string(starkInfo.puCtx[i].fSelExpId)]];
+            fSelPolInfo[i] = {starkInfo.mapOffsets.section[polInfo.section] + polInfo.sectionPos, starkInfo.mapSectionsN.section[polInfo.section]};
         }
-        Polinomial::calculateMulCounter(m, fPols, tPols, fSel, tSel, starkInfo.puCtx[i].hasSelF, starkInfo.puCtx[i].hasSelT, starkInfo.puCtx[i].tVals.size());
     }
-    TimerStopAndLog(STARK_RECURSIVE_F_STEP_1_CALCULATE_MULTIPLICITIES);
+
+    TimerStart(STARK_STEP_1_CALCULATE_HASHES);
+
+    #pragma omp parallel for collapse(2)
+    for (uint64_t i = 0; i < starkInfo.puCtx.size(); i++) {
+        for (uint64_t j = 0; j < N; j++) {
+            uint64_t pos = i * N + j;
+            if(!starkInfo.puCtx[i].hasSelT || !Goldilocks::isZero(mem[tSelPolInfo[i].offset + j * tSelPolInfo[i].nCols])) {
+                tHash[pos] = hash(j, tPolsInfo[i]);
+            }
+
+            if(!starkInfo.puCtx[i].hasSelF || !Goldilocks::isZero(mem[fSelPolInfo[i].offset + j * fSelPolInfo[i].nCols])) {
+                fHash[pos] = hash(j, fPolsInfo[i]);
+            }
+        }
+    }
+
+    TimerStopAndLog(STARK_STEP_1_CALCULATE_HASHES);
+
+    #pragma omp parallel for
+    for (uint64_t i = 0; i < starkInfo.puCtx.size(); i++)
+    {
+        TimerStart(STARK_STEP_1_CALCULATE_M);
+        Polinomial m = starkInfo.getPolinomial(mem, starkInfo.cm_n[numCommited + i]);
+        Polinomial::calculateMulCounter(m, &fHash[i * N], &tHash[i * N]);
+        TimerStopAndLog(STARK_STEP_1_CALCULATE_M);
+    }
+    numCommited += starkInfo.puCtx.size();
+
+    delete[] fHash;
+    delete[] tHash;
+    TimerStopAndLog(STARK_STEP_1_CALCULATE_MULTIPLICITIES);
 
 
     TimerStart(STARK_RECURSIVE_F_STEP_1_LDE_AND_MERKLETREE);
